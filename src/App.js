@@ -26,13 +26,27 @@ function App() {
         data: precinctData,
       });
 
+      const expression = ['match', ['get', 'PREC_2019']];
+
+      for (let idx in precinctData.features) {
+        const precinct = precinctData.features[idx];
+        if (!precinct['properties']['PREC_2019']) {
+          console.log(precinct);
+          continue;
+        }
+        var green = Math.random() * 255;
+        var color = 'rgba(' + 0 + ', ' + green + ', ' + 0 + ', 1)';
+        expression.push(precinct['properties']['PREC_2019'], color);
+      }
+
+      expression.push('rgba(0,0,0,0)');
+
       map.addLayer({
         id: 'precinct-borders',
-        type: 'line',
+        type: 'fill',
         source: 'precincts',
         paint: {
-          'line-color': '#888',
-          'line-opacity': 0.4,
+          'fill-color': expression,
         },
         filter: ['==', '$type', 'Polygon'],
       });
