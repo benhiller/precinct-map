@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom'
+import { createUseStyles } from 'react-jss'
 import mapboxgl from 'mapbox-gl';
-
-import './App.css';
 
 import Tooltip from './Tooltip';
 
@@ -28,7 +27,20 @@ const LAT = 37.758;
 const LONG = -122.444;
 const ZOOM = 12
 
+const useStyles = createUseStyles({
+  app: {
+  },
+  mapContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    left: 0,
+    bottom: 0,
+  },
+});
+
 function App() {
+  const classes = useStyles();
   const [map, setMap] = useState(null);
   const [tooltipPrecinct, setTooltipPrecinct] = useState(null);
   const [tooltipContainer, setTooltipContainer] = useState(null);
@@ -132,8 +144,8 @@ function App() {
   }, [map, tooltipContainer]);
 
   return (
-    <div className="app">
-      <div className="mapContainer" ref={mapContainerRef} />
+    <div className={classes.app}>
+      <div className={classes.mapContainer} ref={mapContainerRef} />
     </div>
   );
 }

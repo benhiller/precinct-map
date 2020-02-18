@@ -1,10 +1,19 @@
 import React from 'react';
+import { createUseStyles } from 'react-jss'
 
-import './Tooltip.css';
+const useStyles = createUseStyles({
+  tooltip: {
+    backgroundColor: 'white',
+    padding: '10px',
+    borderRadius: '3px',
+  },
+});
 
 const Tooltip = ({ precinctData, turnoutData }) => {
+  const classes = useStyles();
+
   return (
-    <div className="tooltip">
+    <div className={classes.tooltip}>
       <div>Precinct #{precinctData.properties['PREC_2012']}</div>
       {turnoutData && <>
         <div>Registered Voters: {turnoutData['total_voters']}</div>
