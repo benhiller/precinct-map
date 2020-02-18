@@ -1,11 +1,13 @@
 import sys
 import json
+from collections import defaultdict
 
 input_file = sys.argv[1]
 output_file = sys.argv[2]
 
 registered_voters_by_precinct = {}
 ballots_cast_by_precinct = {}
+results_by_precinct_and_candidate = defaultdict(dict)
 
 f = open(input_file, 'r')
 for line in f:
@@ -22,13 +24,19 @@ for line in f:
     # print(precinct, precinct_num)
     # print(level)
     # print(voting_method)
+    value = int(enc[11:16])
     if contest == 'REGISTERED VOTERS - TOTAL':
-        registered_voters_by_precinct[precinct_num] = int(enc[11:16])
+        registered_voters_by_precinct[precinct_num] = value
     if contest == 'BALLOTS CAST - TOTAL':
         if precinct_num in ballots_cast_by_precinct:
-            ballots_cast_by_precinct[precinct_num] = ballots_cast_by_precinct[precinct_num] + int(enc[11:16])
+            ballots_cast_by_precinct[precinct_num] += value
         else:
-            ballots_cast_by_precinct[precinct_num] = int(enc[11:16])
+            ballots_cast_by_precinct[precinct_num] = value
+    if contest == 'President' and enc[16:19] == 'DEM':
+        if candidate in results_by_precinct_and_candidate[precinct_num]:
+            results_by_precinct_and_candidate[precinct_num][candidate] += value
+        else:
+            results_by_precinct_and_candidate[precinct_num][candidate] = value
 
 # for p in registered_voters_by_precinct:
 #     if p not in ballots_cast_by_precinct:
@@ -45,7 +53,11 @@ for p in registered_voters_by_precinct:
     precinct_data[p] = {
         'total_voters': registered_voters_by_precinct[p],
         'ballots_cast': ballots_cast_by_precinct[p],
+        'dem_primary': {},
     }
+    for candidate in results_by_precinct_and_candidate[p]:
+        precinct_data[p]['dem_primary'][candidate] = results_by_precinct_and_candidate[p][candidate]
+
 
 f = open(output_file, 'w')
 precinct_json = json.dumps(precinct_data)
