@@ -1,7 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import ReactDOM from 'react-dom'
+import mapboxgl from 'mapbox-gl';
+
 import './App.css';
 
-import mapboxgl from 'mapbox-gl';
+import Tooltip from './Tooltip';
 
 import precinctData from './precincts2012.json';
 import turnoutData from './turnout.json';
@@ -12,7 +15,29 @@ const ZOOM = 12
 
 function App() {
   const [map, setMap] = useState(null);
+  const [tooltipContainer, setTooltipContainer] = useState(null);
   const mapContainerRef = useRef();
+
+  const setTooltip = useCallback((precinctData) => {
+    if (precinctData) {
+      ReactDOM.render(
+        React.createElement(
+          Tooltip, {
+            precinctData,
+          }
+        ),
+        tooltipContainer
+      );
+    } else {
+      ReactDOM.unmountComponentAtNode(tooltipContainer);
+    }
+  }, [tooltipContainer]);
+
+  useEffect(() => {
+    if (!tooltipContainer) {
+      setTooltipContainer(document.createElement('div'));
+    }
+  }, [tooltipContainer]);
 
   useEffect(() => {
     const initializeMap = ((setMap, mapContainerRef) => {
@@ -64,13 +89,24 @@ function App() {
         });
       });
 
+      const tooltip = new mapboxgl.Marker(tooltipContainer, {
+        offset: [0, -20],
+      }).setLngLat([0,0]).addTo(map);
 
+      map.on('mousemove', (e) => {
+        const features = map.queryRenderedFeatures(e.point);
+        const filteredFeature = features.filter(f => (
+          f.source === 'precincts'
+        ))[0];
+        tooltip.setLngLat(e.lngLat);
+        setTooltip(filteredFeature);
+      });
     });
 
     if (!map) {
-        initializeMap(setMap, mapContainerRef);
+      initializeMap(setMap, mapContainerRef);
     }
-  }, [map]);
+  }, [map, tooltipContainer, setTooltip]);
 
   return (
     <div className="app">
