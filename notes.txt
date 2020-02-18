@@ -8,6 +8,7 @@ TODO:
 - see correlation between candidates/propositions across elections
 - see how turnout changes across elections
 - compare vbm/e-day turnout
+- breakdown at district level rather than precinct level
 
 Done:
 - Should use 2012 precinct map for 2016 results
