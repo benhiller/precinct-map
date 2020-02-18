@@ -19,23 +19,25 @@ function App() {
   const [tooltipContainer, setTooltipContainer] = useState(null);
   const mapContainerRef = useRef();
 
-  if (tooltipContainer) {
-    if (tooltipPrecinct) {
-      const tooltipPrecinctNum = tooltipPrecinct.properties['PREC_2012'];
-      const tooltipTurnoutData = turnoutData[tooltipPrecinctNum];
-      ReactDOM.render(
-        React.createElement(
-          Tooltip, {
-            precinctData: tooltipPrecinct,
-            turnoutData: tooltipTurnoutData,
-          }
-        ),
-        tooltipContainer
-      );
-    } else {
-      ReactDOM.unmountComponentAtNode(tooltipContainer);
+  useEffect(() => {
+    if (tooltipContainer) {
+      if (tooltipPrecinct) {
+        const tooltipPrecinctNum = tooltipPrecinct.properties['PREC_2012'];
+        const tooltipTurnoutData = turnoutData[tooltipPrecinctNum];
+        ReactDOM.render(
+          React.createElement(
+            Tooltip, {
+              precinctData: tooltipPrecinct,
+              turnoutData: tooltipTurnoutData,
+            }
+          ),
+          tooltipContainer
+        );
+      } else {
+        ReactDOM.unmountComponentAtNode(tooltipContainer);
+      }
     }
-  }
+  });
 
   useEffect(() => {
     if (!tooltipContainer) {
