@@ -9,6 +9,8 @@ import Tooltip from './Tooltip';
 import precinctData from './precincts2012.json';
 import turnoutData from './turnout.json';
 
+mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN;
+
 let maxTurnout = 0;
 let minTurnout = 1;
 
