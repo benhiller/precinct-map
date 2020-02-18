@@ -5,8 +5,8 @@ import mapboxgl from 'mapbox-gl';
 
 import Tooltip from './Tooltip';
 
-import precinctData from './precincts2012.json';
-import turnoutData from './turnout.json';
+import precinctData from './data/precincts2012.json';
+import turnoutData from './data/turnout.json';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
