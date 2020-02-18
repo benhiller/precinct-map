@@ -38,13 +38,13 @@ function App() {
         const precinctTurnoutData = turnoutData[precinct['properties']['PREC_2012']];
         let color;
         if (!precinctTurnoutData) {
-          color = 'rgba(255,0,0,1)';
+          color = 'rgba(255,0,0,0.75)';
           console.log('no turnout data', precinct);
         } else if (precinctTurnoutData['total_voters'] === 0) {
-          color = 'rgba(0,0,255,1)';
+          color = 'rgba(0,0,255,0.75)';
         } else {
           var green = (1 - (precinctTurnoutData['ballots_cast'] / precinctTurnoutData['total_voters'])) * 255;
-          color = 'rgba(' + 0 + ', ' + green + ', ' + 0 + ', 1)';
+          color = 'rgba(' + 0 + ', ' + green + ', ' + 0 + ', 0.75)';
         }
         expression.push(precinct['properties']['PREC_2012'], color);
       }
