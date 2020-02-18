@@ -3,7 +3,8 @@ import './App.css';
 
 import mapboxgl from 'mapbox-gl';
 
-import precinctData from './precincts.json';
+import precinctData from './precincts2012.json';
+import turnoutData from './turnout.json';
 
 const LAT = 37.758;
 const LONG = -122.444;
@@ -26,17 +27,26 @@ function App() {
         data: precinctData,
       });
 
-      const expression = ['match', ['get', 'PREC_2019']];
+      const expression = ['match', ['get', 'PREC_2012']];
 
       for (let idx in precinctData.features) {
         const precinct = precinctData.features[idx];
-        if (!precinct['properties']['PREC_2019']) {
-          console.log(precinct);
+        if (!precinct['properties']['PREC_2012']) {
+          console.log('no precinct', precinct);
           continue;
         }
-        var green = Math.random() * 255;
-        var color = 'rgba(' + 0 + ', ' + green + ', ' + 0 + ', 1)';
-        expression.push(precinct['properties']['PREC_2019'], color);
+        const precinctTurnoutData = turnoutData[precinct['properties']['PREC_2012']];
+        let color;
+        if (!precinctTurnoutData) {
+          color = 'rgba(255,0,0,1)';
+          console.log('no turnout data', precinct);
+        } else if (precinctTurnoutData['total_voters'] === 0) {
+          color = 'rgba(0,0,255,1)';
+        } else {
+          var green = (1 - (precinctTurnoutData['ballots_cast'] / precinctTurnoutData['total_voters'])) * 255;
+          color = 'rgba(' + 0 + ', ' + green + ', ' + 0 + ', 1)';
+        }
+        expression.push(precinct['properties']['PREC_2012'], color);
       }
 
       expression.push('rgba(0,0,0,0)');
