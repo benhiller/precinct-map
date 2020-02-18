@@ -9,6 +9,19 @@ import Tooltip from './Tooltip';
 import precinctData from './precincts2012.json';
 import turnoutData from './turnout.json';
 
+let maxTurnout = 0;
+let minTurnout = 1;
+
+for (const precinctNum of Object.keys(turnoutData)) {
+  const turnout = turnoutData[precinctNum]['ballots_cast'] / turnoutData[precinctNum]['total_voters'];
+  if (turnout > maxTurnout) {
+    maxTurnout = turnout;
+  }
+  if (turnout < minTurnout) {
+    minTurnout = turnout;
+  }
+}
+
 const LAT = 37.758;
 const LONG = -122.444;
 const ZOOM = 12
@@ -76,7 +89,9 @@ function App() {
           } else if (precinctTurnoutData['total_voters'] === 0) {
             color = 'rgba(0,0,255,0.75)';
           } else {
-            var green = (1 - (precinctTurnoutData['ballots_cast'] / precinctTurnoutData['total_voters'])) * 255;
+            const turnout = precinctTurnoutData['ballots_cast'] / precinctTurnoutData['total_voters'];
+            const adjustedTurnout = (turnout - minTurnout) / (maxTurnout - minTurnout);
+            var green = adjustedTurnout * 255;
             color = 'rgba(' + 0 + ', ' + green + ', ' + 0 + ', 0.75)';
           }
           expression.push(precinct['properties']['PREC_2012'], color);
