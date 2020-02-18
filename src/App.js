@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import ReactDOM from 'react-dom'
-import { createUseStyles } from 'react-jss'
+import ReactDOM from 'react-dom';
+import { createUseStyles } from 'react-jss';
 import mapboxgl from 'mapbox-gl';
 
 import Tooltip from './Tooltip';
@@ -14,7 +14,9 @@ let maxTurnout = 0;
 let minTurnout = 1;
 
 for (const precinctNum of Object.keys(turnoutData)) {
-  const turnout = turnoutData[precinctNum]['ballots_cast'] / turnoutData[precinctNum]['total_voters'];
+  const turnout =
+    turnoutData[precinctNum]['ballots_cast'] /
+    turnoutData[precinctNum]['total_voters'];
   if (turnout > maxTurnout) {
     maxTurnout = turnout;
   }
@@ -25,11 +27,10 @@ for (const precinctNum of Object.keys(turnoutData)) {
 
 const LAT = 37.758;
 const LONG = -122.444;
-const ZOOM = 12
+const ZOOM = 12;
 
 const useStyles = createUseStyles({
-  app: {
-  },
+  app: {},
   mapContainer: {
     position: 'absolute',
     top: 0,
@@ -52,13 +53,11 @@ function App() {
         const tooltipPrecinctNum = tooltipPrecinct.properties['PREC_2012'];
         const tooltipTurnoutData = turnoutData[tooltipPrecinctNum];
         ReactDOM.render(
-          React.createElement(
-            Tooltip, {
-              precinctData: tooltipPrecinct,
-              turnoutData: tooltipTurnoutData,
-            }
-          ),
-          tooltipContainer
+          React.createElement(Tooltip, {
+            precinctData: tooltipPrecinct,
+            turnoutData: tooltipTurnoutData,
+          }),
+          tooltipContainer,
         );
       } else {
         ReactDOM.unmountComponentAtNode(tooltipContainer);
@@ -73,7 +72,7 @@ function App() {
   }, [tooltipContainer]);
 
   useEffect(() => {
-    const initializeMap = ((setMap, mapContainerRef) => {
+    const initializeMap = (setMap, mapContainerRef) => {
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
         style: 'mapbox://styles/mapbox/light-v10',
@@ -95,7 +94,8 @@ function App() {
             console.log('no precinct', precinct);
             continue;
           }
-          const precinctTurnoutData = turnoutData[precinct['properties']['PREC_2012']];
+          const precinctTurnoutData =
+            turnoutData[precinct['properties']['PREC_2012']];
           let color;
           if (!precinctTurnoutData) {
             console.log('no turnout data', precinct);
@@ -104,9 +104,12 @@ function App() {
             continue;
           }
 
-          const bernieVotes = precinctTurnoutData['dem_primary']['BERNIE SANDERS'];
-          const hillaryVotes = precinctTurnoutData['dem_primary']['HILLARY CLINTON'];
-          const margin = (bernieVotes - hillaryVotes) / (bernieVotes + hillaryVotes);
+          const bernieVotes =
+            precinctTurnoutData['dem_primary']['BERNIE SANDERS'];
+          const hillaryVotes =
+            precinctTurnoutData['dem_primary']['HILLARY CLINTON'];
+          const margin =
+            (bernieVotes - hillaryVotes) / (bernieVotes + hillaryVotes);
           // const turnout = precinctTurnoutData['ballots_cast'] / precinctTurnoutData['total_voters'];
           // const adjustedTurnout = (turnout - minTurnout) / (maxTurnout - minTurnout);
           // var green = adjustedTurnout * 255;
@@ -132,17 +135,19 @@ function App() {
 
       const tooltip = new mapboxgl.Marker(tooltipContainer, {
         offset: [0, -70],
-      }).setLngLat([0,0]).addTo(map);
+      })
+        .setLngLat([0, 0])
+        .addTo(map);
 
-      map.on('mousemove', (e) => {
+      map.on('mousemove', e => {
         const features = map.queryRenderedFeatures(e.point);
-        const filteredFeature = features.filter(f => (
-          f.source === 'precincts'
-        ))[0];
+        const filteredFeature = features.filter(
+          f => f.source === 'precincts',
+        )[0];
         tooltip.setLngLat(e.lngLat);
         setTooltipPrecinct(filteredFeature);
       });
-    });
+    };
 
     if (!map) {
       initializeMap(setMap, mapContainerRef);
