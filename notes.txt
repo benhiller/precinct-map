@@ -1,3 +1,8 @@
 TODO:
+- Not taking votes for other dem candidates into account
+- Include %s in tooltip
+- Look into better method for determining color for each precinct
+
+Done:
 - Should use 2012 precinct map for 2016 results
 

@@ -98,16 +98,22 @@ function App() {
           const precinctTurnoutData = turnoutData[precinct['properties']['PREC_2012']];
           let color;
           if (!precinctTurnoutData) {
-            color = 'rgba(255,0,0,0.75)';
             console.log('no turnout data', precinct);
+            continue;
           } else if (precinctTurnoutData['total_voters'] === 0) {
-            color = 'rgba(0,0,255,0.75)';
-          } else {
-            const turnout = precinctTurnoutData['ballots_cast'] / precinctTurnoutData['total_voters'];
-            const adjustedTurnout = (turnout - minTurnout) / (maxTurnout - minTurnout);
-            var green = adjustedTurnout * 255;
-            color = 'rgba(' + 0 + ', ' + green + ', ' + 0 + ', 0.75)';
+            continue;
           }
+
+          const bernieVotes = precinctTurnoutData['dem_primary']['BERNIE SANDERS'];
+          const hillaryVotes = precinctTurnoutData['dem_primary']['HILLARY CLINTON'];
+          const margin = (bernieVotes - hillaryVotes) / (bernieVotes + hillaryVotes);
+          // const turnout = precinctTurnoutData['ballots_cast'] / precinctTurnoutData['total_voters'];
+          // const adjustedTurnout = (turnout - minTurnout) / (maxTurnout - minTurnout);
+          // var green = adjustedTurnout * 255;
+          const green = 0;
+          const red = margin > 0 ? Math.floor((margin / 0.5) * 255, 255) : 0;
+          const blue = margin < 0 ? Math.floor((margin / 0.5) * -255, 255) : 0;
+          color = 'rgba(' + red + ', ' + green + ', ' + blue + ', 0.75)';
           expression.push(precinct['properties']['PREC_2012'], color);
         }
 

@@ -19,6 +19,8 @@ const Tooltip = ({ precinctData, turnoutData }) => {
         <div>Registered Voters: {turnoutData['total_voters']}</div>
         <div>Ballots Cast: {turnoutData['ballots_cast']}</div>
         <div>Turnout: {((turnoutData['ballots_cast'] / turnoutData['total_voters']) * 100).toFixed(2)}%</div>
+        <div>Bernie: {turnoutData['dem_primary']['BERNIE SANDERS']}</div>
+        <div>Hillary: {turnoutData['dem_primary']['HILLARY CLINTON']}</div>
       </>}
     </div>
   );
