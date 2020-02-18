@@ -3,6 +3,12 @@ TODO:
 - Include %s in tooltip
 - Look into better method for determining color for each precinct
 
+
+- show results from several elections
+- see correlation between candidates/propositions across elections
+- see how turnout changes across elections
+- compare vbm/e-day turnout
+
 Done:
 - Should use 2012 precinct map for 2016 results
 
