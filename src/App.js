@@ -178,9 +178,9 @@ function App() {
         }
 
         const bernieVotes =
-          precinctTurnoutData['dem_primary']['BERNIE SANDERS'];
+          precinctTurnoutData['President - DEM']['BERNIE SANDERS'];
         const hillaryVotes =
-          precinctTurnoutData['dem_primary']['HILLARY CLINTON'];
+          precinctTurnoutData['President - DEM']['HILLARY CLINTON'];
         const margin =
           (bernieVotes - hillaryVotes) / (bernieVotes + hillaryVotes);
         // const turnout = precinctTurnoutData['ballots_cast'] / precinctTurnoutData['total_voters'];

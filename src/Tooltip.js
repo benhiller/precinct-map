@@ -27,8 +27,10 @@ const Tooltip = ({ precinctData, turnoutData }) => {
             ).toFixed(2)}
             %
           </div>
-          <div>Bernie: {turnoutData['dem_primary']['BERNIE SANDERS']}</div>
-          <div>Hillary: {turnoutData['dem_primary']['HILLARY CLINTON']}</div>
+          <div>Bernie: {turnoutData['President - DEM']['BERNIE SANDERS']}</div>
+          <div>
+            Hillary: {turnoutData['President - DEM']['HILLARY CLINTON']}
+          </div>
         </>
       )}
     </div>
