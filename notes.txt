@@ -7,6 +7,10 @@ TODO:
 - simplify map style
 - add results layer underneath labels
 
+- investigate error in queryRenderedFeatures that sometimes occurs after changing contest
+- load precinct data via URL to mapbox and just rely on turnout data file for generating fill layer?
+- fix selecting total voters/ballots cast "contests"
+
 Done:
 - Should use 2012 precinct map for 2016 results
 - Include %s in tooltip
