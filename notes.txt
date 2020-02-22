@@ -1,15 +1,14 @@
 TODO:
-- Not taking votes for other dem candidates into account
-- Include %s in tooltip
-- Look into better method for determining color for each precinct
-
-
 - show results from several elections
 - see correlation between candidates/propositions across elections
 - see how turnout changes across elections
 - compare vbm/e-day turnout
 - breakdown at district level rather than precinct level
+- simplify map style
+- add results layer underneath labels
 
 Done:
 - Should use 2012 precinct map for 2016 results
-
+- Include %s in tooltip
+- Not taking votes for other dem candidates into account
+- Look into better method for determining color for each precinct
