@@ -29,6 +29,7 @@ const COLORS = [
 ];
 
 const THRESHOLDS = [-25, -20, -15, -10, -1, 1, 10, 15, 20, 25];
+const TURNOUT_THRESHOLDS = [-1, -1, -1, -1, -1, -1, 40, 50, 60, 70];
 
 const DEFAULT_CONTEST = 'President - DEM';
 
@@ -132,7 +133,10 @@ function App() {
         tooltipTurnoutData = turnoutData[tooltipPrecinctNum];
       }
 
-      if (tooltipTurnoutData && contest in tooltipTurnoutData) {
+      if (
+        tooltipTurnoutData &&
+        (contest in tooltipTurnoutData || contest == 'Turnout')
+      ) {
         ReactDOM.render(
           React.createElement(Tooltip, {
             precinctData: tooltipPrecinct,
@@ -243,28 +247,39 @@ function App() {
       if (!precinctTurnoutData) {
         console.log('no turnout data', precinct);
         continue;
-      } else if (!(contest in precinctTurnoutData)) {
+      } else if (contest !== 'Turnout' && !(contest in precinctTurnoutData)) {
         continue;
       }
 
-      const candidate0Votes =
-        precinctTurnoutData[contest][topCandidates[0].candidate];
-      const candidate1Votes =
-        precinctTurnoutData[contest][topCandidates[1].candidate];
-      const totalVotes = Object.keys(precinctTurnoutData[contest]).reduce(
-        (total, candidate) => total + precinctTurnoutData[contest][candidate],
-        0,
-      );
+      let margin;
+      let thresholds;
+      if (contest === 'Turnout') {
+        margin =
+          (precinctTurnoutData.ballotsCast /
+            precinctTurnoutData.registeredVoters) *
+          100;
+        thresholds = TURNOUT_THRESHOLDS;
+      } else {
+        const candidate0Votes =
+          precinctTurnoutData[contest][topCandidates[0].candidate];
+        const candidate1Votes =
+          precinctTurnoutData[contest][topCandidates[1].candidate];
+        const totalVotes = Object.keys(precinctTurnoutData[contest]).reduce(
+          (total, candidate) => total + precinctTurnoutData[contest][candidate],
+          0,
+        );
+        // TODO: Need to check logic makes sense here
+        margin = ((candidate0Votes - candidate1Votes) / totalVotes) * 100;
+        thresholds = THRESHOLDS;
+      }
 
-      // TODO: Need to check logic makes sense here
-      const margin = ((candidate0Votes - candidate1Votes) / totalVotes) * 100;
       let color;
-      for (let i = 0; i < THRESHOLDS.length; i++) {
-        if (margin <= THRESHOLDS[i]) {
+      for (let i = 0; i < thresholds.length; i++) {
+        if (margin <= thresholds[i]) {
           color = COLORS[i];
           break;
         }
-        if (i === THRESHOLDS.length - 1) {
+        if (i === thresholds.length - 1) {
           color = COLORS[i + 1];
         }
       }
@@ -287,8 +302,11 @@ function App() {
 
   let contests = [];
   if (turnoutData) {
-    contests = Object.keys(turnoutData[Object.keys(turnoutData)[0]]);
+    contests = Object.keys(turnoutData[Object.keys(turnoutData)[0]]).filter(
+      c => !(c === 'registeredVoters' || c == 'ballotsCast'),
+    );
   }
+  contests.unshift('Turnout');
 
   return (
     <div className={classes.app}>

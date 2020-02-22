@@ -19,14 +19,17 @@ const Tooltip = ({ precinctData, turnoutData, contest }) => {
     100
   ).toFixed(2);
 
-  const sortedCandidates = Object.keys(turnoutData[contest])
-    .sort((c1, c2) => turnoutData[contest][c1] - turnoutData[contest][c2])
-    .reverse();
+  const sortedCandidates =
+    contest === 'Turnout'
+      ? []
+      : Object.keys(turnoutData[contest])
+          .sort((c1, c2) => turnoutData[contest][c1] - turnoutData[contest][c2])
+          .reverse();
 
-  const totalVotes = Object.values(turnoutData[contest]).reduce(
-    (t, v) => t + v,
-    0,
-  );
+  const totalVotes =
+    contest === 'Turnout'
+      ? 0
+      : Object.values(turnoutData[contest]).reduce((t, v) => t + v, 0);
 
   return (
     <div className={classes.tooltip}>
