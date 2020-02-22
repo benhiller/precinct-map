@@ -9,10 +9,11 @@ TODO:
 
 - investigate error in queryRenderedFeatures that sometimes occurs after changing contest
 - load precinct data via URL to mapbox and just rely on turnout data file for generating fill layer?
-- fix selecting total voters/ballots cast "contests"
+- add all us rep elections
 
 Done:
 - Should use 2012 precinct map for 2016 results
 - Include %s in tooltip
 - Not taking votes for other dem candidates into account
 - Look into better method for determining color for each precinct
+- fix selecting total voters/ballots cast "contests"
