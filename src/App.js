@@ -243,8 +243,6 @@ function App() {
       if (!precinctTurnoutData) {
         console.log('no turnout data', precinct);
         continue;
-      } else if (precinctTurnoutData['total_voters'] === 0) {
-        continue;
       } else if (!(contest in precinctTurnoutData)) {
         continue;
       }

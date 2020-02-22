@@ -2,14 +2,6 @@ import sys
 import json
 from collections import defaultdict
 
-input_file = sys.argv[1]
-output_file = sys.argv[2]
-
-registered_voters_by_precinct = {}
-ballots_cast_by_precinct = {}
-# { precinct : { contest: { candidate: votes }}}
-results = defaultdict(lambda: defaultdict(dict))
-
 PARTISAN_CONTEST_PREFIXES = ['President']
 NONPARTISAN_CONTEST_PREFIXES = [
     'U.S. Senator',
@@ -27,7 +19,14 @@ VALID_PARTIES = [
     'REP',
 ]
 
+input_file = sys.argv[1]
+output_file = sys.argv[2]
+
 f = open(input_file, 'r')
+
+# { precinct: { registeredVoters, ballotsCast, contest: { candidate: votes }}}
+precinct_data = defaultdict(lambda: defaultdict(dict))
+
 for line in f:
     enc = line[0:26]
     contest = line[26:82].strip()
@@ -52,18 +51,18 @@ for line in f:
     # print(level)
     # print(voting_method)
     if contest == 'REGISTERED VOTERS - TOTAL':
-        registered_voters_by_precinct[precinct_num] = value
+        precinct_data[precinct_num]['registeredVoters'] = value
     elif contest == 'BALLOTS CAST - TOTAL':
-        if precinct_num in ballots_cast_by_precinct:
-            ballots_cast_by_precinct[precinct_num] += value
+        if 'ballotsCast' in precinct_data[precinct_num]:
+            precinct_data[precinct_num]['ballotsCast'] += value
         else:
-            ballots_cast_by_precinct[precinct_num] = value
+            precinct_data[precinct_num]['ballotsCast'] = value
     elif include_contest:
         if candidate not in INVALID_CANDIDATES:
-            if candidate in results[precinct_num][contest]:
-                results[precinct_num][contest][candidate] += value
+            if candidate in precinct_data[precinct_num][contest]:
+                precinct_data[precinct_num][contest][candidate] += value
             else:
-                results[precinct_num][contest][candidate] = value
+                precinct_data[precinct_num][contest][candidate] = value
 
 # for p in registered_voters_by_precinct:
 #     if p not in ballots_cast_by_precinct:
@@ -74,14 +73,6 @@ for line in f:
 # for p in ballots_cast_by_precinct:
 #    if p not in registered_voters_by_precinct:
 #        print('missing')
-
-precinct_data = {}
-for p in registered_voters_by_precinct:
-    precinct_data[p] = {
-        'total_voters': registered_voters_by_precinct[p],
-        'ballots_cast': ballots_cast_by_precinct[p],
-        **results[p],
-    }
 
 f = open(output_file, 'w')
 precinct_json = json.dumps(precinct_data)

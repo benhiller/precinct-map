@@ -15,7 +15,7 @@ const Tooltip = ({ precinctData, turnoutData, contest }) => {
   const classes = useStyles();
 
   const turnoutRate = (
-    (turnoutData['ballots_cast'] / turnoutData['total_voters']) *
+    (turnoutData.ballotsCast / turnoutData.registeredVoters) *
     100
   ).toFixed(2);
 
@@ -31,8 +31,8 @@ const Tooltip = ({ precinctData, turnoutData, contest }) => {
   return (
     <div className={classes.tooltip}>
       <div>Precinct #{precinctData.properties['PREC_2012']}</div>
-      <div>Registered Voters: {turnoutData['total_voters']}</div>
-      <div>Ballots Cast: {turnoutData['ballots_cast']}</div>
+      <div>Registered Voters: {turnoutData.registeredVoters}</div>
+      <div>Ballots Cast: {turnoutData.ballotsCast}</div>
       <div>Turnout: {turnoutRate}%</div>
       {sortedCandidates.slice(0, 2).map(candidate => {
         const votes = turnoutData[contest][candidate];
