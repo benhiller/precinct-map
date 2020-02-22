@@ -14,6 +14,24 @@ const LAT = 37.758;
 const LONG = -122.444;
 const ZOOM = 12;
 
+const COLORS = [
+  'rgba(0, 0, 255, 0.75)',
+  'rgba(83, 83, 255, 0.75)',
+  'rgba(129, 129, 255, 0.75)',
+  'rgba(171, 171, 255, 0.75)',
+  'rgba(213, 213, 255, 0.75)',
+  'rgba(255, 255, 255, 0.75)',
+  'rgba(255, 220, 220, 0.75)',
+  'rgba(255, 184, 184, 0.75)',
+  'rgba(255, 145, 145, 0.75)',
+  'rgba(255, 99, 99, 0.75)',
+  'rgba(255, 0, 0, 0.75)',
+];
+
+const THRESHOLDS = [-25, -20, -15, -10, -1, 1, 10, 15, 20, 25];
+
+const CONTEST = 'President - DEM';
+
 const useStyles = createUseStyles({
   app: {},
   mapContainer: {
@@ -24,6 +42,20 @@ const useStyles = createUseStyles({
     bottom: 0,
   },
 });
+
+const computeOverallResults = (turnoutData, contest) => {
+  const results = {};
+  for (const precinct of Object.keys(turnoutData)) {
+    for (const candidate of Object.keys(turnoutData[precinct][contest])) {
+      if (candidate in results) {
+        results[candidate] += turnoutData[precinct][contest][candidate];
+      } else {
+        results[candidate] = turnoutData[precinct][contest][candidate];
+      }
+    }
+  }
+  return results;
+};
 
 function App() {
   const classes = useStyles();
@@ -84,13 +116,18 @@ function App() {
 
   useEffect(() => {
     if (tooltipContainer) {
+      let tooltipTurnoutData;
       if (tooltipPrecinct) {
         const tooltipPrecinctNum = tooltipPrecinct.properties['PREC_2012'];
-        const tooltipTurnoutData = turnoutData[tooltipPrecinctNum];
+        tooltipTurnoutData = turnoutData[tooltipPrecinctNum];
+      }
+
+      if (tooltipTurnoutData) {
         ReactDOM.render(
           React.createElement(Tooltip, {
             precinctData: tooltipPrecinct,
             turnoutData: tooltipTurnoutData,
+            contest: CONTEST,
           }),
           tooltipContainer,
         );
@@ -107,21 +144,15 @@ function App() {
   }, [tooltipContainer]);
 
   useEffect(() => {
-    const initializeMap = (setMap, mapContainerRef) => {
-      const map = new mapboxgl.Map({
-        container: mapContainerRef.current,
-        style: 'mapbox://styles/mapbox/light-v10',
-        center: [LONG, LAT],
-        zoom: ZOOM,
-      });
+    const map = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      style: 'mapbox://styles/mapbox/light-v10',
+      center: [LONG, LAT],
+      zoom: ZOOM,
+    });
 
-      setMap(map);
-    };
-
-    if (!map) {
-      initializeMap(setMap, mapContainerRef);
-    }
-  }, [map, tooltipContainer]);
+    setMap(map);
+  }, []);
 
   useEffect(() => {
     if (!map) {
@@ -161,6 +192,27 @@ function App() {
 
       const expression = ['match', ['get', 'PREC_2012']];
 
+      const overallResults = computeOverallResults(turnoutData, CONTEST);
+      const topCandidates = [];
+      for (const candidate of Object.keys(overallResults)) {
+        const votes = overallResults[candidate];
+        if (topCandidates.length < 2) {
+          topCandidates.push({ candidate, votes });
+        } else {
+          if (votes > topCandidates[0].votes) {
+            if (topCandidates[0].votes > topCandidates[1].votes) {
+              topCandidates[1] = topCandidates[0];
+            }
+            topCandidates[0] = { candidate, votes };
+          } else if (votes > topCandidates[1].votes) {
+            if (topCandidates[1].votes > topCandidates[0].votes) {
+              topCandidates[0] = topCandidates[1];
+            }
+            topCandidates[1] = { candidate, votes };
+          }
+        }
+      }
+
       for (let idx in precinctData.features) {
         const precinct = precinctData.features[idx];
         if (!precinct['properties']['PREC_2012']) {
@@ -169,7 +221,6 @@ function App() {
         }
         const precinctTurnoutData =
           turnoutData[precinct['properties']['PREC_2012']];
-        let color;
         if (!precinctTurnoutData) {
           console.log('no turnout data', precinct);
           continue;
@@ -177,19 +228,28 @@ function App() {
           continue;
         }
 
-        const bernieVotes =
-          precinctTurnoutData['President - DEM']['BERNIE SANDERS'];
-        const hillaryVotes =
-          precinctTurnoutData['President - DEM']['HILLARY CLINTON'];
-        const margin =
-          (bernieVotes - hillaryVotes) / (bernieVotes + hillaryVotes);
-        // const turnout = precinctTurnoutData['ballots_cast'] / precinctTurnoutData['total_voters'];
-        // const adjustedTurnout = (turnout - minTurnout) / (maxTurnout - minTurnout);
-        // var green = adjustedTurnout * 255;
-        const green = 0;
-        const red = margin > 0 ? Math.floor((margin / 0.5) * 255, 255) : 0;
-        const blue = margin < 0 ? Math.floor((margin / 0.5) * -255, 255) : 0;
-        color = 'rgba(' + red + ', ' + green + ', ' + blue + ', 0.75)';
+        const candidate0Votes =
+          precinctTurnoutData[CONTEST][topCandidates[0].candidate];
+        const candidate1Votes =
+          precinctTurnoutData[CONTEST][topCandidates[1].candidate];
+        const totalVotes = Object.keys(precinctTurnoutData[CONTEST]).reduce(
+          (total, candidate) => total + precinctTurnoutData[CONTEST][candidate],
+          0,
+        );
+
+        // TODO: Need to check logic makes sense here
+        const margin = ((candidate0Votes - candidate1Votes) / totalVotes) * 100;
+        let color;
+        for (let i = 0; i < THRESHOLDS.length; i++) {
+          if (margin <= THRESHOLDS[i]) {
+            color = COLORS[i];
+            break;
+          }
+          if (i === THRESHOLDS.length - 1) {
+            color = COLORS[i + 1];
+          }
+        }
+
         expression.push(precinct['properties']['PREC_2012'], color);
       }
 
