@@ -12,6 +12,8 @@ TODO:
 - load precinct data via URL to mapbox and just rely on turnout data file for generating fill layer?
 - add all us rep elections
 
+- see if we can avoid adding/removing layers when changing contest and instead just modify existing layer
+
 Done:
 - Should use 2012 precinct map for 2016 results
 - Include %s in tooltip

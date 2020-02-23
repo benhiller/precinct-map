@@ -71,6 +71,7 @@ function App() {
   const [contest, setContest] = useState(DEFAULT_CONTEST);
   const [map, setMap] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [tooltipLayerAdded, setTooltipLayerAdded] = useState(false);
   const [tooltipPrecinct, setTooltipPrecinct] = useState(null);
   const [turnoutData, setTurnoutData] = useState(null);
   const [fetchingTurnoutData, setFetchingTurnoutData] = useState(false);
@@ -129,17 +130,16 @@ function App() {
     if (tooltipContainer) {
       let tooltipTurnoutData;
       if (tooltipPrecinct) {
-        const tooltipPrecinctNum = tooltipPrecinct.properties['PREC_2012'];
-        tooltipTurnoutData = turnoutData[tooltipPrecinctNum];
+        tooltipTurnoutData = turnoutData[tooltipPrecinct];
       }
 
       if (
         tooltipTurnoutData &&
-        (contest in tooltipTurnoutData || contest == 'Turnout')
+        (contest in tooltipTurnoutData || contest === 'Turnout')
       ) {
         ReactDOM.render(
           React.createElement(Tooltip, {
-            precinctData: tooltipPrecinct,
+            precinct: tooltipPrecinct,
             turnoutData: tooltipTurnoutData,
             contest: contest,
           }),
@@ -168,10 +168,14 @@ function App() {
       .addTo(map);
 
     map.on('mousemove', e => {
-      const features = map.queryRenderedFeatures(e.point);
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: ['precinct-borders'],
+      });
       const filteredFeature = features.filter(f => f.source === 'precincts')[0];
       tooltip.setLngLat(e.lngLat);
-      setTooltipPrecinct(filteredFeature);
+      setTooltipPrecinct(
+        filteredFeature && filteredFeature.properties['PREC_2012'],
+      );
     });
 
     map.on('load', () => {
@@ -195,6 +199,23 @@ function App() {
       data: precinctData,
     });
   }, [precinctData, map, mapLoaded]);
+
+  useEffect(() => {
+    if (!tooltipLayerAdded) {
+      return;
+    }
+
+    if (!tooltipPrecinct) {
+      map.setLayoutProperty('tooltip-precinct-border', 'visibility', 'none');
+    } else {
+      map.setLayoutProperty('tooltip-precinct-border', 'visibility', 'visible');
+      map.setFilter('tooltip-precinct-border', [
+        '==',
+        'PREC_2012',
+        tooltipPrecinct,
+      ]);
+    }
+  }, [tooltipLayerAdded, map, tooltipPrecinct]);
 
   useEffect(() => {
     if (!mapLoaded) {
@@ -298,12 +319,24 @@ function App() {
       },
       filter: ['==', '$type', 'Polygon'],
     });
+
+    map.addLayer({
+      id: 'tooltip-precinct-border',
+      type: 'line',
+      source: 'precincts',
+      filter: ['==', 'PREC_2012', '0'],
+      visibility: 'none',
+      paint: {
+        'line-width': 3,
+      },
+    });
+    setTooltipLayerAdded(true);
   }, [map, mapLoaded, precinctData, turnoutData, contest]);
 
   let contests = [];
   if (turnoutData) {
     contests = Object.keys(turnoutData[Object.keys(turnoutData)[0]]).filter(
-      c => !(c === 'registeredVoters' || c == 'ballotsCast'),
+      c => !(c === 'registeredVoters' || c === 'ballotsCast'),
     );
   }
   contests.unshift('Turnout');

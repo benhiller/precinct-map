@@ -11,7 +11,7 @@ const useStyles = createUseStyles({
   },
 });
 
-const Tooltip = ({ precinctData, turnoutData, contest }) => {
+const Tooltip = ({ precinct, turnoutData, contest }) => {
   const classes = useStyles();
 
   const turnoutRate = (
@@ -33,7 +33,7 @@ const Tooltip = ({ precinctData, turnoutData, contest }) => {
 
   return (
     <div className={classes.tooltip}>
-      <div>Precinct #{precinctData.properties['PREC_2012']}</div>
+      <div>Precinct #{precinct}</div>
       <div>Registered Voters: {turnoutData.registeredVoters}</div>
       <div>Ballots Cast: {turnoutData.ballotsCast}</div>
       <div>Turnout: {turnoutRate}%</div>
