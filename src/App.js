@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { createUseStyles } from 'react-jss';
 import mapboxgl from 'mapbox-gl';
+import bbox from '@turf/bbox';
 
 import Tooltip from './Tooltip';
 
@@ -78,6 +79,7 @@ function App() {
   const [precinctData, setPrecinctData] = useState(null);
   const [fetchingPrecinctData, setFetchingPrecinctData] = useState(false);
   const [tooltipContainer, setTooltipContainer] = useState(null);
+  const [tooltipMarker, setTooltipMarker] = useState(null);
   const mapContainerRef = useRef();
 
   useEffect(() => {
@@ -124,6 +126,12 @@ function App() {
             precinct: tooltipPrecinct,
             turnoutData: tooltipTurnoutData,
             contest: contest,
+            onResize: ({ bounds }) => {
+              tooltipMarker.setOffset([
+                0,
+                -(bounds.height / window.devicePixelRatio + 10),
+              ]);
+            },
           }),
           tooltipContainer,
         );
@@ -131,7 +139,7 @@ function App() {
         ReactDOM.unmountComponentAtNode(tooltipContainer);
       }
     }
-  }, [turnoutData, tooltipContainer, tooltipPrecinct, contest]);
+  }, [turnoutData, tooltipContainer, tooltipPrecinct, tooltipMarker, contest]);
 
   useEffect(() => {
     const tooltipDiv = document.createElement('div');
@@ -144,7 +152,7 @@ function App() {
     });
 
     const tooltip = new mapboxgl.Marker(tooltipDiv, {
-      offset: [0, -70],
+      offset: [0, 0],
     })
       .setLngLat([0, 0])
       .addTo(map);
@@ -154,7 +162,10 @@ function App() {
         layers: ['precinct-borders'],
       });
       const filteredFeature = features.filter(f => f.source === 'precincts')[0];
-      tooltip.setLngLat(e.lngLat);
+      if (filteredFeature) {
+        const [minX /* minY */, , maxX, maxY] = bbox(filteredFeature.geometry);
+        tooltip.setLngLat([(minX + maxX) / 2.0, maxY]);
+      }
       setTooltipPrecinct(
         filteredFeature && filteredFeature.properties['PREC_2012'],
       );
@@ -166,6 +177,7 @@ function App() {
 
     setMap(map);
     setTooltipContainer(tooltipDiv);
+    setTooltipMarker(tooltip);
   }, []);
 
   useEffect(() => {

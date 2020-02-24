@@ -1,5 +1,6 @@
 import React from 'react';
 import { createUseStyles } from 'react-jss';
+import Measure from 'react-measure';
 
 import { capitalizeName } from './util';
 
@@ -11,7 +12,7 @@ const useStyles = createUseStyles({
   },
 });
 
-const Tooltip = ({ precinct, turnoutData, contest }) => {
+const Tooltip = ({ precinct, turnoutData, contest, onResize }) => {
   const classes = useStyles();
 
   const turnoutRate = (
@@ -32,21 +33,30 @@ const Tooltip = ({ precinct, turnoutData, contest }) => {
       : Object.values(turnoutData[contest]).reduce((t, v) => t + v, 0);
 
   return (
-    <div className={classes.tooltip}>
-      <div>Precinct #{precinct}</div>
-      <div>Registered Voters: {turnoutData.registeredVoters}</div>
-      <div>Ballots Cast: {turnoutData.ballotsCast}</div>
-      <div>Turnout: {turnoutRate}%</div>
-      {sortedCandidates.slice(0, 2).map(candidate => {
-        const votes = turnoutData[contest][candidate];
-        const percent = ((votes / totalVotes) * 100).toFixed(2);
-        return (
-          <div key={candidate}>
-            {capitalizeName(candidate)}: {percent}% ({votes})
-          </div>
-        );
-      })}
-    </div>
+    <Measure
+      bounds
+      onResize={contentRect => {
+        onResize(contentRect);
+      }}
+    >
+      {({ measureRef }) => (
+        <div ref={measureRef} className={classes.tooltip}>
+          <div>Precinct #{precinct}</div>
+          <div>Registered Voters: {turnoutData.registeredVoters}</div>
+          <div>Ballots Cast: {turnoutData.ballotsCast}</div>
+          <div>Turnout: {turnoutRate}%</div>
+          {sortedCandidates.slice(0, 2).map(candidate => {
+            const votes = turnoutData[contest][candidate];
+            const percent = ((votes / totalVotes) * 100).toFixed(2);
+            return (
+              <div key={candidate}>
+                {capitalizeName(candidate)}: {percent}% ({votes})
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Measure>
   );
 };
 
