@@ -71,11 +71,10 @@ function App() {
   const [contest, setContest] = useState(DEFAULT_CONTEST);
   const [map, setMap] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [tooltipLayerAdded, setTooltipLayerAdded] = useState(false);
+  const [mapInitialized, setMapInitialized] = useState(false);
   const [tooltipPrecinct, setTooltipPrecinct] = useState(null);
   const [turnoutData, setTurnoutData] = useState(null);
   const [fetchingTurnoutData, setFetchingTurnoutData] = useState(false);
-  // const [turnoutDataStats, setTurnoutDataStats] = useState({ maxTurnout: 0, minTurnout: 0});
   const [precinctData, setPrecinctData] = useState(null);
   const [fetchingPrecinctData, setFetchingPrecinctData] = useState(false);
   const [tooltipContainer, setTooltipContainer] = useState(null);
@@ -92,23 +91,6 @@ function App() {
       .then(text => {
         const turnoutData = JSON.parse(text);
         setTurnoutData(turnoutData);
-
-        // let maxTurnout = 0;
-        // let minTurnout = 1;
-
-        // for (const precinctNum of Object.keys(turnoutData)) {
-        //   const turnout =
-        //     turnoutData[precinctNum]['ballots_cast'] /
-        //     turnoutData[precinctNum]['total_voters'];
-        //   if (turnout > maxTurnout) {
-        //     maxTurnout = turnout;
-        //   }
-        //   if (turnout < minTurnout) {
-        //     minTurnout = turnout;
-        //   }
-        // }
-
-        // setTurnoutDataStats({ minTurnout, maxTurnout });
       });
   }, [fetchingTurnoutData]);
 
@@ -198,10 +180,33 @@ function App() {
       type: 'geojson',
       data: precinctData,
     });
+
+    map.addLayer({
+      id: 'precinct-borders',
+      type: 'fill',
+      source: 'precincts',
+      paint: {
+        'fill-color': '#fff',
+      },
+      filter: ['==', '$type', 'Polygon'],
+    });
+
+    map.addLayer({
+      id: 'tooltip-precinct-border',
+      type: 'line',
+      source: 'precincts',
+      filter: ['==', 'PREC_2012', '0'],
+      visibility: 'none',
+      paint: {
+        'line-width': 3,
+      },
+    });
+
+    setMapInitialized(true);
   }, [precinctData, map, mapLoaded]);
 
   useEffect(() => {
-    if (!tooltipLayerAdded) {
+    if (!mapInitialized) {
       return;
     }
 
@@ -215,10 +220,10 @@ function App() {
         tooltipPrecinct,
       ]);
     }
-  }, [tooltipLayerAdded, map, tooltipPrecinct]);
+  }, [mapInitialized, map, tooltipPrecinct]);
 
   useEffect(() => {
-    if (!mapLoaded) {
+    if (!mapInitialized) {
       return;
     }
 
@@ -228,10 +233,6 @@ function App() {
 
     if (!turnoutData) {
       return;
-    }
-
-    if (map.getLayer('precinct-borders')) {
-      map.removeLayer('precinct-borders');
     }
 
     const expression = ['match', ['get', 'PREC_2012']];
@@ -310,28 +311,8 @@ function App() {
 
     expression.push('rgba(0,0,0,0)');
 
-    map.addLayer({
-      id: 'precinct-borders',
-      type: 'fill',
-      source: 'precincts',
-      paint: {
-        'fill-color': expression,
-      },
-      filter: ['==', '$type', 'Polygon'],
-    });
-
-    map.addLayer({
-      id: 'tooltip-precinct-border',
-      type: 'line',
-      source: 'precincts',
-      filter: ['==', 'PREC_2012', '0'],
-      visibility: 'none',
-      paint: {
-        'line-width': 3,
-      },
-    });
-    setTooltipLayerAdded(true);
-  }, [map, mapLoaded, precinctData, turnoutData, contest]);
+    map.setPaintProperty('precinct-borders', 'fill-color', expression);
+  }, [map, mapInitialized, precinctData, turnoutData, contest]);
 
   let contests = [];
   if (turnoutData) {
