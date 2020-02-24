@@ -8,12 +8,15 @@ TODO:
 - add results layer underneath labels
 
 - load precinct data via URL to mapbox and just rely on turnout data file for generating fill layer?
-- handle precincts with 0 voters from 2016 general correctly
 
 - zoom into bounding box for relevant precincts for elections that only a subset of Sf voted in
 
-- determine thesholds for colors dynamically based on results + add legend showing ranges?
+- determine thresholds for colors dynamically based on results + add legend showing ranges?
 - add overall results for the race to overlay?
+
+Data correctness:
+- handle merged precincts
+- handle precincts with 0 voters from 2016 general correctly
 
 Tooltip:
 - if tooltip would be above window, place it below precinct

@@ -8,8 +8,9 @@ import Tooltip from './Tooltip';
 import { TURNOUT_CONTEST } from './util';
 
 import precinctDataUrl from './data/precincts2012.txt';
-import primaryElectionDataUrl from './data/election2016primary.txt';
-import generalElectionDataUrl from './data/election2016general.txt';
+import primary2016ElectionDataUrl from './data/election2016primary.txt';
+import general2016ElectionDataUrl from './data/election2016general.txt';
+import municipal2015ElectionDataUrl from './data/election2015municipal.txt';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
@@ -34,24 +35,30 @@ const COLORS = [
 const THRESHOLDS = [-25, -20, -15, -10, -1, 1, 10, 15, 20, 25];
 const TURNOUT_THRESHOLDS = [-1, -1, -1, -1, -1, -1, 50, 55, 60, 65];
 
-const PRIMARY_DEFAULT_CONTEST = 'President - DEM';
-const GENERAL_DEFAULT_CONTEST =
-  'President and Vice President - CALIFORNIA (100)';
-
 const PRECINCT_SOURCE = 'precincts';
 const PRECINCT_LAYER = 'precinct-borders';
 const PRECINCT_HIGHLIGHT_LAYER = 'precinct-highlight';
 
-const PRIMARY_2016 = '2016 Primary Election';
 const GENERAL_2016 = '2016 General Election';
-const elections = [PRIMARY_2016, GENERAL_2016];
+const PRIMARY_2016 = '2016 Primary Election';
+const MUNICIPAL_2015 = '2015 Municipal Election';
+
+const GENERAL_2016_DEFAULT_CONTEST =
+  'President and Vice President - CALIFORNIA (100)';
+const PRIMARY_2016_DEFAULT_CONTEST = 'President - DEM';
+const MUNICIPAL_2015_DEFAULT_CONTEST =
+  'Mayor - CITY/COUNTY OF SAN FRANCI (100)';
+
+const elections = [GENERAL_2016, PRIMARY_2016, MUNICIPAL_2015];
 const electionsToDataUrls = {
-  [PRIMARY_2016]: primaryElectionDataUrl,
-  [GENERAL_2016]: generalElectionDataUrl,
+  [GENERAL_2016]: general2016ElectionDataUrl,
+  [PRIMARY_2016]: primary2016ElectionDataUrl,
+  [MUNICIPAL_2015]: municipal2015ElectionDataUrl,
 };
 const electionsToDefaultContests = {
-  [PRIMARY_2016]: PRIMARY_DEFAULT_CONTEST,
-  [GENERAL_2016]: GENERAL_DEFAULT_CONTEST,
+  [GENERAL_2016]: GENERAL_2016_DEFAULT_CONTEST,
+  [PRIMARY_2016]: PRIMARY_2016_DEFAULT_CONTEST,
+  [MUNICIPAL_2015]: MUNICIPAL_2015_DEFAULT_CONTEST,
 };
 
 const useStyles = createUseStyles({
@@ -94,8 +101,11 @@ function App() {
   const classes = useStyles();
 
   // User controls
-  const [election, setElection] = useState(elections[0]);
-  const [contest, setContest] = useState(PRIMARY_DEFAULT_CONTEST);
+  const defaultElection = PRIMARY_2016;
+  const [election, setElection] = useState(defaultElection);
+  const [contest, setContest] = useState(
+    electionsToDefaultContests[defaultElection],
+  );
   const [tooltipPrecinct, setTooltipPrecinct] = useState(null);
 
   // Data
