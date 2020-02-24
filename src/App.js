@@ -8,7 +8,7 @@ import Tooltip from './Tooltip';
 import { TURNOUT_CONTEST } from './util';
 
 import precinctDataUrl from './data/precincts2012.txt';
-import turnoutDataUrl from './data/turnout.txt';
+import electionDataUrl from './data/election2016primary.txt';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
@@ -56,15 +56,15 @@ const useStyles = createUseStyles({
   },
 });
 
-const computeOverallResults = (turnoutData, contest) => {
+const computeOverallResults = (electionData, contest) => {
   const results = {};
-  for (const precinct of Object.keys(turnoutData)) {
-    if (contest in turnoutData[precinct]) {
-      for (const candidate of Object.keys(turnoutData[precinct][contest])) {
+  for (const precinct of Object.keys(electionData)) {
+    if (contest in electionData[precinct]) {
+      for (const candidate of Object.keys(electionData[precinct][contest])) {
         if (candidate in results) {
-          results[candidate] += turnoutData[precinct][contest][candidate];
+          results[candidate] += electionData[precinct][contest][candidate];
         } else {
-          results[candidate] = turnoutData[precinct][contest][candidate];
+          results[candidate] = electionData[precinct][contest][candidate];
         }
       }
     }
@@ -80,13 +80,14 @@ function App() {
   const [tooltipPrecinct, setTooltipPrecinct] = useState(null);
 
   // Data
-  const [turnoutData, setTurnoutData] = useState(null);
+  const [electionData, setElectionData] = useState(null);
+  const [contests, setContests] = useState(null);
   const [precinctData, setPrecinctData] = useState(null);
 
   // Loading
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapInitialized, setMapInitialized] = useState(false);
-  const [fetchingTurnoutData, setFetchingTurnoutData] = useState(false);
+  const [fetchingElectionData, setFetchingElectionData] = useState(false);
   const [fetchingPrecinctData, setFetchingPrecinctData] = useState(false);
 
   // UI elements
@@ -97,18 +98,19 @@ function App() {
   const mapContainerRef = useRef();
 
   useEffect(() => {
-    if (fetchingTurnoutData) {
+    if (fetchingElectionData) {
       return;
     }
 
-    setFetchingTurnoutData(true);
-    fetch(turnoutDataUrl)
+    setFetchingElectionData(true);
+    fetch(electionDataUrl)
       .then(response => response.text())
       .then(text => {
-        const turnoutData = JSON.parse(text);
-        setTurnoutData(turnoutData);
+        const electionData = JSON.parse(text);
+        setElectionData(electionData['precinct_data']);
+        setContests(electionData['contests']);
       });
-  }, [fetchingTurnoutData]);
+  }, [fetchingElectionData]);
 
   useEffect(() => {
     if (fetchingPrecinctData) {
@@ -126,19 +128,19 @@ function App() {
 
   useEffect(() => {
     if (tooltipContainer) {
-      let tooltipTurnoutData;
+      let tooltipElectionData;
       if (tooltipPrecinct) {
-        tooltipTurnoutData = turnoutData[tooltipPrecinct];
+        tooltipElectionData = electionData[tooltipPrecinct];
       }
 
       if (
-        tooltipTurnoutData &&
-        (contest in tooltipTurnoutData || contest === TURNOUT_CONTEST)
+        tooltipElectionData &&
+        (contest in tooltipElectionData || contest === TURNOUT_CONTEST)
       ) {
         ReactDOM.render(
           React.createElement(Tooltip, {
             precinct: tooltipPrecinct,
-            turnoutData: tooltipTurnoutData,
+            electionData: tooltipElectionData,
             contest: contest,
             onResize: ({ bounds }) => {
               tooltipMarker.setOffset([
@@ -153,7 +155,7 @@ function App() {
         ReactDOM.unmountComponentAtNode(tooltipContainer);
       }
     }
-  }, [turnoutData, tooltipContainer, tooltipPrecinct, tooltipMarker, contest]);
+  }, [electionData, tooltipContainer, tooltipPrecinct, tooltipMarker, contest]);
 
   useEffect(() => {
     const tooltipDiv = document.createElement('div');
@@ -257,13 +259,13 @@ function App() {
       return;
     }
 
-    if (!turnoutData) {
+    if (!electionData) {
       return;
     }
 
     const expression = ['match', ['get', 'PREC_2012']];
 
-    const overallResults = computeOverallResults(turnoutData, contest);
+    const overallResults = computeOverallResults(electionData, contest);
     const topCandidates = [];
     for (const candidate of Object.keys(overallResults)) {
       const votes = overallResults[candidate];
@@ -290,14 +292,14 @@ function App() {
         // console.log('no precinct', precinct);
         continue;
       }
-      const precinctTurnoutData =
-        turnoutData[precinct['properties']['PREC_2012']];
-      if (!precinctTurnoutData) {
+      const precinctElectionData =
+        electionData[precinct['properties']['PREC_2012']];
+      if (!precinctElectionData) {
         // console.log('no turnout data', precinct);
         continue;
       } else if (
         contest !== TURNOUT_CONTEST &&
-        !(contest in precinctTurnoutData)
+        !(contest in precinctElectionData)
       ) {
         continue;
       }
@@ -306,17 +308,18 @@ function App() {
       let thresholds;
       if (contest === TURNOUT_CONTEST) {
         margin =
-          (precinctTurnoutData.ballotsCast /
-            precinctTurnoutData.registeredVoters) *
+          (precinctElectionData.ballotsCast /
+            precinctElectionData.registeredVoters) *
           100;
         thresholds = TURNOUT_THRESHOLDS;
       } else {
         const candidate0Votes =
-          precinctTurnoutData[contest][topCandidates[0].candidate];
+          precinctElectionData[contest][topCandidates[0].candidate];
         const candidate1Votes =
-          precinctTurnoutData[contest][topCandidates[1].candidate];
-        const totalVotes = Object.keys(precinctTurnoutData[contest]).reduce(
-          (total, candidate) => total + precinctTurnoutData[contest][candidate],
+          precinctElectionData[contest][topCandidates[1].candidate];
+        const totalVotes = Object.keys(precinctElectionData[contest]).reduce(
+          (total, candidate) =>
+            total + precinctElectionData[contest][candidate],
           0,
         );
         // TODO: Need to check logic makes sense here
@@ -341,27 +344,21 @@ function App() {
     expression.push('rgba(0,0,0,0)');
 
     map.setPaintProperty(PRECINCT_LAYER, 'fill-color', expression);
-  }, [map, mapInitialized, precinctData, turnoutData, contest]);
-
-  let contests = [];
-  if (turnoutData) {
-    contests = Object.keys(turnoutData[Object.keys(turnoutData)[0]]).filter(
-      c => !(c === 'registeredVoters' || c === 'ballotsCast'),
-    );
-  }
-  contests.unshift(TURNOUT_CONTEST);
+  }, [map, mapInitialized, precinctData, electionData, contest]);
 
   return (
     <div className={classes.app}>
-      <div className={classes.contestControl}>
-        <select onChange={e => setContest(e.target.value)} value={contest}>
-          {contests.map(innerContest => (
-            <option key={innerContest} value={innerContest}>
-              {innerContest}
-            </option>
-          ))}
-        </select>
-      </div>
+      {contests && (
+        <div className={classes.contestControl}>
+          <select onChange={e => setContest(e.target.value)} value={contest}>
+            {[TURNOUT_CONTEST, ...contests].map(innerContest => (
+              <option key={innerContest} value={innerContest}>
+                {innerContest}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <div className={classes.mapContainer} ref={mapContainerRef} />
     </div>
   );

@@ -26,6 +26,7 @@ f = open(input_file, 'r')
 
 # { precinct: { registeredVoters, ballotsCast, contest: { candidate: votes }}}
 precinct_data = defaultdict(lambda: defaultdict(dict))
+contests = []
 
 for line in f:
     enc = line[0:26]
@@ -58,6 +59,8 @@ for line in f:
         else:
             precinct_data[precinct_num]['ballotsCast'] = value
     elif include_contest:
+        if contest not in contests:
+            contests.append(contest)
         if candidate not in INVALID_CANDIDATES:
             if candidate in precinct_data[precinct_num][contest]:
                 precinct_data[precinct_num][contest][candidate] += value
@@ -75,6 +78,9 @@ for line in f:
 #        print('missing')
 
 f = open(output_file, 'w')
-precinct_json = json.dumps(precinct_data)
+precinct_json = json.dumps({
+    'contests': contests,
+    'precinct_data': precinct_data,
+})
 f.write(precinct_json)
 f.close()

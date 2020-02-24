@@ -12,25 +12,27 @@ const useStyles = createUseStyles({
   },
 });
 
-const Tooltip = ({ precinct, turnoutData, contest, onResize }) => {
+const Tooltip = ({ precinct, electionData, contest, onResize }) => {
   const classes = useStyles();
 
   const turnoutRate = (
-    (turnoutData.ballotsCast / turnoutData.registeredVoters) *
+    (electionData.ballotsCast / electionData.registeredVoters) *
     100
   ).toFixed(2);
 
   const sortedCandidates =
     contest === TURNOUT_CONTEST
       ? []
-      : Object.keys(turnoutData[contest])
-          .sort((c1, c2) => turnoutData[contest][c1] - turnoutData[contest][c2])
+      : Object.keys(electionData[contest])
+          .sort(
+            (c1, c2) => electionData[contest][c1] - electionData[contest][c2],
+          )
           .reverse();
 
   const totalVotes =
     contest === TURNOUT_CONTEST
       ? 0
-      : Object.values(turnoutData[contest]).reduce((t, v) => t + v, 0);
+      : Object.values(electionData[contest]).reduce((t, v) => t + v, 0);
 
   return (
     <Measure
@@ -42,11 +44,11 @@ const Tooltip = ({ precinct, turnoutData, contest, onResize }) => {
       {({ measureRef }) => (
         <div ref={measureRef} className={classes.tooltip}>
           <div>Precinct #{precinct}</div>
-          <div>Registered Voters: {turnoutData.registeredVoters}</div>
-          <div>Ballots Cast: {turnoutData.ballotsCast}</div>
+          <div>Registered Voters: {electionData.registeredVoters}</div>
+          <div>Ballots Cast: {electionData.ballotsCast}</div>
           <div>Turnout: {turnoutRate}%</div>
           {sortedCandidates.slice(0, 2).map(candidate => {
-            const votes = turnoutData[contest][candidate];
+            const votes = electionData[contest][candidate];
             const percent = ((votes / totalVotes) * 100).toFixed(2);
             return (
               <div key={candidate}>
