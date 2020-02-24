@@ -8,6 +8,7 @@ TODO:
 - add results layer underneath labels
 
 - load precinct data via URL to mapbox and just rely on turnout data file for generating fill layer?
+- handle precincts with 0 voters from 2016 general correctly
 
 
 Tooltip:

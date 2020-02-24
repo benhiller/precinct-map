@@ -8,7 +8,8 @@ import Tooltip from './Tooltip';
 import { TURNOUT_CONTEST } from './util';
 
 import precinctDataUrl from './data/precincts2012.txt';
-import electionDataUrl from './data/election2016primary.txt';
+import primaryElectionDataUrl from './data/election2016primary.txt';
+import generalElectionDataUrl from './data/election2016general.txt';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
@@ -33,11 +34,25 @@ const COLORS = [
 const THRESHOLDS = [-25, -20, -15, -10, -1, 1, 10, 15, 20, 25];
 const TURNOUT_THRESHOLDS = [-1, -1, -1, -1, -1, -1, 50, 55, 60, 65];
 
-const DEFAULT_CONTEST = 'President - DEM';
+const PRIMARY_DEFAULT_CONTEST = 'President - DEM';
+const GENERAL_DEFAULT_CONTEST =
+  'President and Vice President - CALIFORNIA (100)';
 
 const PRECINCT_SOURCE = 'precincts';
 const PRECINCT_LAYER = 'precinct-borders';
 const PRECINCT_HIGHLIGHT_LAYER = 'precinct-highlight';
+
+const PRIMARY_2016 = '2016 Primary Election';
+const GENERAL_2016 = '2016 General Election';
+const elections = [PRIMARY_2016, GENERAL_2016];
+const electionsToDataUrls = {
+  [PRIMARY_2016]: primaryElectionDataUrl,
+  [GENERAL_2016]: generalElectionDataUrl,
+};
+const electionsToDefaultContests = {
+  [PRIMARY_2016]: PRIMARY_DEFAULT_CONTEST,
+  [GENERAL_2016]: GENERAL_DEFAULT_CONTEST,
+};
 
 const useStyles = createUseStyles({
   app: {},
@@ -46,6 +61,9 @@ const useStyles = createUseStyles({
     top: 10,
     left: 10,
     zIndex: '1 !important',
+    '& select': {
+      marginRight: '10px',
+    },
   },
   mapContainer: {
     position: 'absolute',
@@ -76,7 +94,8 @@ function App() {
   const classes = useStyles();
 
   // User controls
-  const [contest, setContest] = useState(DEFAULT_CONTEST);
+  const [election, setElection] = useState(elections[0]);
+  const [contest, setContest] = useState(PRIMARY_DEFAULT_CONTEST);
   const [tooltipPrecinct, setTooltipPrecinct] = useState(null);
 
   // Data
@@ -87,8 +106,6 @@ function App() {
   // Loading
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapInitialized, setMapInitialized] = useState(false);
-  const [fetchingElectionData, setFetchingElectionData] = useState(false);
-  const [fetchingPrecinctData, setFetchingPrecinctData] = useState(false);
 
   // UI elements
   const [map, setMap] = useState(null);
@@ -98,33 +115,23 @@ function App() {
   const mapContainerRef = useRef();
 
   useEffect(() => {
-    if (fetchingElectionData) {
-      return;
-    }
-
-    setFetchingElectionData(true);
-    fetch(electionDataUrl)
+    fetch(electionsToDataUrls[election])
       .then(response => response.text())
       .then(text => {
         const electionData = JSON.parse(text);
         setElectionData(electionData['precinct_data']);
         setContests(electionData['contests']);
       });
-  }, [fetchingElectionData]);
+  }, [election]);
 
   useEffect(() => {
-    if (fetchingPrecinctData) {
-      return;
-    }
-
-    setFetchingPrecinctData(true);
     fetch(precinctDataUrl)
       .then(response => response.text())
       .then(text => {
         const precinctData = JSON.parse(text);
         setPrecinctData(precinctData);
       });
-  }, [fetchingPrecinctData]);
+  }, []);
 
   useEffect(() => {
     if (tooltipContainer) {
@@ -344,12 +351,25 @@ function App() {
     expression.push('rgba(0,0,0,0)');
 
     map.setPaintProperty(PRECINCT_LAYER, 'fill-color', expression);
-  }, [map, mapInitialized, precinctData, electionData, contest]);
+  }, [map, mapInitialized, precinctData, electionData, election, contest]);
+
+  const changeElection = election => {
+    setElectionData(null);
+    setElection(election);
+    setContest(electionsToDefaultContests[election]);
+  };
 
   return (
     <div className={classes.app}>
-      {contests && (
-        <div className={classes.contestControl}>
+      <div className={classes.contestControl}>
+        <select onChange={e => changeElection(e.target.value)} value={election}>
+          {elections.map(innerElection => (
+            <option key={innerElection} value={innerElection}>
+              {innerElection}
+            </option>
+          ))}
+        </select>
+        {contests && (
           <select onChange={e => setContest(e.target.value)} value={contest}>
             {[TURNOUT_CONTEST, ...contests].map(innerContest => (
               <option key={innerContest} value={innerContest}>
@@ -357,8 +377,8 @@ function App() {
               </option>
             ))}
           </select>
-        </div>
-      )}
+        )}
+      </div>
       <div className={classes.mapContainer} ref={mapContainerRef} />
     </div>
   );

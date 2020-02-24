@@ -1,3 +1,5 @@
+# Used for 2016 primary results
+
 import sys
 import json
 from collections import defaultdict
