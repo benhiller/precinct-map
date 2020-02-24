@@ -30,7 +30,7 @@ const COLORS = [
 ];
 
 const THRESHOLDS = [-25, -20, -15, -10, -1, 1, 10, 15, 20, 25];
-const TURNOUT_THRESHOLDS = [-1, -1, -1, -1, -1, -1, 40, 50, 60, 70];
+const TURNOUT_THRESHOLDS = [-1, -1, -1, -1, -1, -1, 50, 55, 60, 65];
 
 const DEFAULT_CONTEST = 'President - DEM';
 
@@ -271,13 +271,13 @@ function App() {
     for (let idx in precinctData.features) {
       const precinct = precinctData.features[idx];
       if (!precinct['properties']['PREC_2012']) {
-        console.log('no precinct', precinct);
+        // console.log('no precinct', precinct);
         continue;
       }
       const precinctTurnoutData =
         turnoutData[precinct['properties']['PREC_2012']];
       if (!precinctTurnoutData) {
-        console.log('no turnout data', precinct);
+        // console.log('no turnout data', precinct);
         continue;
       } else if (contest !== 'Turnout' && !(contest in precinctTurnoutData)) {
         continue;
