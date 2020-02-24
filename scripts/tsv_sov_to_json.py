@@ -39,18 +39,18 @@ for idx, line in enumerate(f):
             else:
                 precinct_data[precinct_num][contest][candidate] += int(columns[idx + 7])
 
-            # Add total voter data based on the first contest only
-            if len(contests) == 1:
-                if 'ballotsCast' not in precinct_data[precinct_num]:
-                    precinct_data[precinct_num]['ballotsCast'] = int(columns[5])
-                else:
-                    precinct_data[precinct_num]['ballotsCast'] += int(columns[5])
+        # Add total voter data based on the first contest only
+        if len(contests) == 1:
+            if 'ballotsCast' not in precinct_data[precinct_num]:
+                precinct_data[precinct_num]['ballotsCast'] = int(columns[5])
+            else:
+                precinct_data[precinct_num]['ballotsCast'] += int(columns[5])
 
-                if columns[1] == 'VBM':
-                    if 'registeredVoters' not in precinct_data[precinct_num]:
-                        precinct_data[precinct_num]['registeredVoters'] = int(columns[4])
-                    else:
-                        precinct_data[precinct_num]['registeredVoters'] += int(columns[4])
+            if columns[1] == 'VBM':
+                if 'registeredVoters' not in precinct_data[precinct_num]:
+                    precinct_data[precinct_num]['registeredVoters'] = int(columns[4])
+                else:
+                    precinct_data[precinct_num]['registeredVoters'] += int(columns[4])
 
 f = open(output_file, 'w')
 precinct_json = json.dumps({
