@@ -6,13 +6,9 @@ TODO:
 - breakdown at district level rather than precinct level
 - simplify map style
 - add results layer underneath labels
-- highlight precinct tooltip is showing for
 
-- investigate error in queryRenderedFeatures that sometimes occurs after changing contest
 - load precinct data via URL to mapbox and just rely on turnout data file for generating fill layer?
 - add all us rep elections
-
-- see if we can avoid adding/removing layers when changing contest and instead just modify existing layer
 
 Done:
 - Should use 2012 precinct map for 2016 results
@@ -20,3 +16,6 @@ Done:
 - Not taking votes for other dem candidates into account
 - Look into better method for determining color for each precinct
 - fix selecting total voters/ballots cast "contests"
+- investigate error in queryRenderedFeatures that sometimes occurs after changing contest
+- see if we can avoid adding/removing layers when changing contest and instead just modify existing layer
+- highlight precinct tooltip is showing for
