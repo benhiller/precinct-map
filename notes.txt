@@ -12,6 +12,9 @@ TODO:
 
 - zoom into bounding box for relevant precincts for elections that only a subset of Sf voted in
 
+- determine thesholds for colors dynamically based on results + add legend showing ranges?
+- add overall results for the race to overlay?
+
 Tooltip:
 - if tooltip would be above window, place it below precinct
 - add shadow/arrow to tooltip view
