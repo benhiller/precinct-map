@@ -158,9 +158,7 @@ function App() {
       .addTo(map);
 
     map.on('mousemove', e => {
-      const features = map.queryRenderedFeatures(e.point, {
-        layers: ['precinct-borders'],
-      });
+      const features = map.queryRenderedFeatures(e.point);
       const filteredFeature = features.filter(f => f.source === 'precincts')[0];
       if (filteredFeature) {
         const [minX /* minY */, , maxX, maxY] = bbox(filteredFeature.geometry);
