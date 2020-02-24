@@ -208,7 +208,7 @@ function App() {
       filter: ['==', 'PREC_2012', '0'],
       visibility: 'none',
       paint: {
-        'line-width': 3,
+        'line-width': 2,
       },
     });
 
