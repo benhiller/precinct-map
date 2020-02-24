@@ -1,3 +1,5 @@
+export const TURNOUT_CONTEST = 'Turnout';
+
 export const capitalizeName = name =>
   name
     .split(' ')

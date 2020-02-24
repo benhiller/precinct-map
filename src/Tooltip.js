@@ -2,7 +2,7 @@ import React from 'react';
 import { createUseStyles } from 'react-jss';
 import Measure from 'react-measure';
 
-import { capitalizeName } from './util';
+import { capitalizeName, TURNOUT_CONTEST } from './util';
 
 const useStyles = createUseStyles({
   tooltip: {
@@ -21,14 +21,14 @@ const Tooltip = ({ precinct, turnoutData, contest, onResize }) => {
   ).toFixed(2);
 
   const sortedCandidates =
-    contest === 'Turnout'
+    contest === TURNOUT_CONTEST
       ? []
       : Object.keys(turnoutData[contest])
           .sort((c1, c2) => turnoutData[contest][c1] - turnoutData[contest][c2])
           .reverse();
 
   const totalVotes =
-    contest === 'Turnout'
+    contest === TURNOUT_CONTEST
       ? 0
       : Object.values(turnoutData[contest]).reduce((t, v) => t + v, 0);
 

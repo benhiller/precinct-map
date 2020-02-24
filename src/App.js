@@ -5,6 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import bbox from '@turf/bbox';
 
 import Tooltip from './Tooltip';
+import { TURNOUT_CONTEST } from './util';
 
 import precinctDataUrl from './data/precincts2012.txt';
 import turnoutDataUrl from './data/turnout.txt';
@@ -33,6 +34,10 @@ const THRESHOLDS = [-25, -20, -15, -10, -1, 1, 10, 15, 20, 25];
 const TURNOUT_THRESHOLDS = [-1, -1, -1, -1, -1, -1, 50, 55, 60, 65];
 
 const DEFAULT_CONTEST = 'President - DEM';
+
+const PRECINCT_SOURCE = 'precincts';
+const PRECINCT_LAYER = 'precinct-borders';
+const PRECINCT_HIGHLIGHT_LAYER = 'precinct-highlight';
 
 const useStyles = createUseStyles({
   app: {},
@@ -69,17 +74,26 @@ const computeOverallResults = (turnoutData, contest) => {
 
 function App() {
   const classes = useStyles();
+
+  // User controls
   const [contest, setContest] = useState(DEFAULT_CONTEST);
-  const [map, setMap] = useState(null);
+  const [tooltipPrecinct, setTooltipPrecinct] = useState(null);
+
+  // Data
+  const [turnoutData, setTurnoutData] = useState(null);
+  const [precinctData, setPrecinctData] = useState(null);
+
+  // Loading
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapInitialized, setMapInitialized] = useState(false);
-  const [tooltipPrecinct, setTooltipPrecinct] = useState(null);
-  const [turnoutData, setTurnoutData] = useState(null);
   const [fetchingTurnoutData, setFetchingTurnoutData] = useState(false);
-  const [precinctData, setPrecinctData] = useState(null);
   const [fetchingPrecinctData, setFetchingPrecinctData] = useState(false);
+
+  // UI elements
+  const [map, setMap] = useState(null);
   const [tooltipContainer, setTooltipContainer] = useState(null);
   const [tooltipMarker, setTooltipMarker] = useState(null);
+
   const mapContainerRef = useRef();
 
   useEffect(() => {
@@ -119,7 +133,7 @@ function App() {
 
       if (
         tooltipTurnoutData &&
-        (contest in tooltipTurnoutData || contest === 'Turnout')
+        (contest in tooltipTurnoutData || contest === TURNOUT_CONTEST)
       ) {
         ReactDOM.render(
           React.createElement(Tooltip, {
@@ -159,7 +173,9 @@ function App() {
 
     map.on('mousemove', e => {
       const features = map.queryRenderedFeatures(e.point);
-      const filteredFeature = features.filter(f => f.source === 'precincts')[0];
+      const filteredFeature = features.filter(
+        f => f.source === PRECINCT_SOURCE,
+      )[0];
       if (filteredFeature) {
         const [minX /* minY */, , maxX, maxY] = bbox(filteredFeature.geometry);
         tooltip.setLngLat([(minX + maxX) / 2.0, maxY]);
@@ -186,15 +202,15 @@ function App() {
       return;
     }
 
-    map.addSource('precincts', {
+    map.addSource(PRECINCT_SOURCE, {
       type: 'geojson',
       data: precinctData,
     });
 
     map.addLayer({
-      id: 'precinct-borders',
+      id: PRECINCT_LAYER,
       type: 'fill',
-      source: 'precincts',
+      source: PRECINCT_SOURCE,
       paint: {
         'fill-color': '#fff',
       },
@@ -202,9 +218,9 @@ function App() {
     });
 
     map.addLayer({
-      id: 'tooltip-precinct-border',
+      id: PRECINCT_HIGHLIGHT_LAYER,
       type: 'line',
-      source: 'precincts',
+      source: PRECINCT_SOURCE,
       filter: ['==', 'PREC_2012', '0'],
       visibility: 'none',
       paint: {
@@ -221,10 +237,10 @@ function App() {
     }
 
     if (!tooltipPrecinct) {
-      map.setLayoutProperty('tooltip-precinct-border', 'visibility', 'none');
+      map.setLayoutProperty(PRECINCT_HIGHLIGHT_LAYER, 'visibility', 'none');
     } else {
-      map.setLayoutProperty('tooltip-precinct-border', 'visibility', 'visible');
-      map.setFilter('tooltip-precinct-border', [
+      map.setLayoutProperty(PRECINCT_HIGHLIGHT_LAYER, 'visibility', 'visible');
+      map.setFilter(PRECINCT_HIGHLIGHT_LAYER, [
         '==',
         'PREC_2012',
         tooltipPrecinct,
@@ -279,13 +295,16 @@ function App() {
       if (!precinctTurnoutData) {
         // console.log('no turnout data', precinct);
         continue;
-      } else if (contest !== 'Turnout' && !(contest in precinctTurnoutData)) {
+      } else if (
+        contest !== TURNOUT_CONTEST &&
+        !(contest in precinctTurnoutData)
+      ) {
         continue;
       }
 
       let margin;
       let thresholds;
-      if (contest === 'Turnout') {
+      if (contest === TURNOUT_CONTEST) {
         margin =
           (precinctTurnoutData.ballotsCast /
             precinctTurnoutData.registeredVoters) *
@@ -321,7 +340,7 @@ function App() {
 
     expression.push('rgba(0,0,0,0)');
 
-    map.setPaintProperty('precinct-borders', 'fill-color', expression);
+    map.setPaintProperty(PRECINCT_LAYER, 'fill-color', expression);
   }, [map, mapInitialized, precinctData, turnoutData, contest]);
 
   let contests = [];
@@ -330,7 +349,7 @@ function App() {
       c => !(c === 'registeredVoters' || c === 'ballotsCast'),
     );
   }
-  contests.unshift('Turnout');
+  contests.unshift(TURNOUT_CONTEST);
 
   return (
     <div className={classes.app}>
