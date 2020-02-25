@@ -33,6 +33,12 @@ for idx, line in enumerate(f):
 
     if valid_row:
         precinct_num = columns[2]
+        precinct_name = columns[0]
+
+        second_precinct = None
+        if '/' in precinct_name:
+            second_precinct = precinct_name.split('/')[1]
+
         for idx, candidate in enumerate(candidates):
             if candidate not in precinct_data[precinct_num][contest]:
                 precinct_data[precinct_num][contest][candidate] = int(columns[idx + 7])
@@ -51,6 +57,9 @@ for idx, line in enumerate(f):
                     precinct_data[precinct_num]['registeredVoters'] = int(columns[4])
                 else:
                     precinct_data[precinct_num]['registeredVoters'] += int(columns[4])
+
+        if second_precinct:
+            precinct_data[second_precinct] = precinct_data[precinct_num]
 
 f = open(output_file, 'w')
 precinct_json = json.dumps({
