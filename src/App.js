@@ -146,7 +146,7 @@ function App() {
   useEffect(() => {
     if (tooltipContainer) {
       let tooltipElectionData;
-      if (tooltipPrecinct) {
+      if (tooltipPrecinct && electionData) {
         tooltipElectionData = electionData[tooltipPrecinct];
       }
 
