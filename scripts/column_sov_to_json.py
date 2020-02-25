@@ -47,6 +47,9 @@ for line in f:
             contest = contest + ' - ' + party
     elif any([contest.startswith(p) for p in NONPARTISAN_CONTEST_PREFIXES]):
         include_contest = True
+    second_precinct = None
+    if '/' in precinct:
+        second_precinct = precinct.split('/')[1]
     # print(enc)
     # print(contest)
     # print(candidate)
@@ -68,6 +71,8 @@ for line in f:
                 precinct_data[precinct_num][contest][candidate] += value
             else:
                 precinct_data[precinct_num][contest][candidate] = value
+    if second_precinct:
+        precinct_data[second_precinct] = precinct_data[precinct_num]
 
 # for p in registered_voters_by_precinct:
 #     if p not in ballots_cast_by_precinct:
