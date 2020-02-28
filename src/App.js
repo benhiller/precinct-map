@@ -179,7 +179,7 @@ function App() {
 
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: 'mapbox://styles/mapbox/light-v10',
+      style: 'mapbox://styles/benhiller/ck6zv6a0m0dnd1jqo502sezzs',
       center: [LONG, LAT],
       zoom: ZOOM,
     });
@@ -226,26 +226,41 @@ function App() {
       data: precinctData,
     });
 
-    map.addLayer({
-      id: PRECINCT_LAYER,
-      type: 'fill',
-      source: PRECINCT_SOURCE,
-      paint: {
-        'fill-color': '#fff',
-      },
-      filter: ['==', '$type', 'Polygon'],
-    });
+    const layers = map.getStyle().layers;
+    let firstSymbolId;
+    for (let i = 0; i < layers.length; i++) {
+      if (layers[i].id.endsWith('label')) {
+        firstSymbolId = layers[i].id;
+        break;
+      }
+    }
 
-    map.addLayer({
-      id: PRECINCT_HIGHLIGHT_LAYER,
-      type: 'line',
-      source: PRECINCT_SOURCE,
-      filter: ['==', 'PREC_2012', '0'],
-      visibility: 'none',
-      paint: {
-        'line-width': 2,
+    map.addLayer(
+      {
+        id: PRECINCT_HIGHLIGHT_LAYER,
+        type: 'line',
+        source: PRECINCT_SOURCE,
+        filter: ['==', 'PREC_2012', '0'],
+        visibility: 'none',
+        paint: {
+          'line-width': 2,
+        },
       },
-    });
+      firstSymbolId,
+    );
+
+    map.addLayer(
+      {
+        id: PRECINCT_LAYER,
+        type: 'fill',
+        source: PRECINCT_SOURCE,
+        paint: {
+          'fill-color': '#fff',
+        },
+        filter: ['==', '$type', 'Polygon'],
+      },
+      PRECINCT_HIGHLIGHT_LAYER,
+    );
 
     setMapInitialized(true);
   }, [precinctData, map, mapLoaded]);
