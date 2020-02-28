@@ -5,7 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import bbox from '@turf/bbox';
 
 import Tooltip from './Tooltip';
-import { TURNOUT_CONTEST } from './util';
+import { TURNOUT_CONTEST, capitalizeName } from './util';
 
 import precinctDataUrl from './data/precincts2012.txt';
 import primary2016ElectionDataUrl from './data/election2016primary.txt';
@@ -62,7 +62,9 @@ const electionsToDefaultContests = {
 };
 
 const useStyles = createUseStyles({
-  app: {},
+  app: {
+    fontFamily: 'sans-serif',
+  },
   contestControl: {
     position: 'absolute',
     top: 10,
@@ -71,6 +73,12 @@ const useStyles = createUseStyles({
     '& select': {
       marginRight: '10px',
     },
+  },
+  overallResults: {
+    position: 'absolute',
+    bottom: 25,
+    right: 10,
+    zIndex: '1 !important',
   },
   mapContainer: {
     position: 'absolute',
@@ -110,6 +118,7 @@ function App() {
 
   // Data
   const [electionData, setElectionData] = useState(null);
+  const [overallResults, setOverallResults] = useState(null);
   const [contests, setContests] = useState(null);
   const [precinctData, setPrecinctData] = useState(null);
 
@@ -301,6 +310,7 @@ function App() {
     const expression = ['match', ['get', 'PREC_2012']];
 
     const overallResults = computeOverallResults(electionData, contest);
+    setOverallResults(overallResults);
     const topCandidates = [];
     for (const candidate of Object.keys(overallResults)) {
       const votes = overallResults[candidate];
@@ -387,6 +397,9 @@ function App() {
     setContest(electionsToDefaultContests[election]);
   };
 
+  const totalVotes =
+    overallResults &&
+    Object.entries(overallResults).reduce((sum, [c, r]) => sum + r, 0);
   return (
     <div className={classes.app}>
       <div className={classes.contestControl}>
@@ -406,6 +419,17 @@ function App() {
             ))}
           </select>
         )}
+      </div>
+      <div className={classes.overallResults}>
+        {overallResults &&
+          Object.entries(overallResults)
+            .sort(([c1, r1], [c2, r2]) => r2 - r1)
+            .slice(0, 2)
+            .map(([c, r]) => (
+              <div key={c}>
+                {capitalizeName(c)} - {((r / totalVotes) * 100).toFixed(2)}%
+              </div>
+            ))}
       </div>
       <div className={classes.mapContainer} ref={mapContainerRef} />
     </div>
