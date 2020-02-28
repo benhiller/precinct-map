@@ -10,7 +10,8 @@ TODO:
 - zoom into bounding box for relevant precincts for elections that only a subset of Sf voted in
 
 - determine thresholds for colors dynamically based on results + add legend showing ranges?
-- add overall results for the race to overlay?
+- improve styling of overall results
+- improve layout on iphone
 
 Data correctness:
 - handle merged precincts
