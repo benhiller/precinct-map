@@ -184,6 +184,9 @@ function App() {
       zoom: ZOOM,
     });
 
+    map.dragRotate.disable();
+    map.touchZoomRotate.disableRotation();
+
     const tooltip = new mapboxgl.Marker(tooltipDiv, {
       offset: [0, 0],
     })
