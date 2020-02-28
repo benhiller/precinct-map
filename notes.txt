@@ -4,8 +4,6 @@ TODO:
 - see how turnout changes across elections
 - compare vbm/e-day turnout
 - breakdown at district level rather than precinct level
-- simplify map style
-- add results layer underneath labels
 
 - load precinct data via URL to mapbox and just rely on turnout data file for generating fill layer?
 
@@ -32,3 +30,5 @@ Done:
 - see if we can avoid adding/removing layers when changing contest and instead just modify existing layer
 - highlight precinct tooltip is showing for
 - add all us rep elections
+- simplify map style
+- add results layer underneath labels
