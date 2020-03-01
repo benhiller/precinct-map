@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import ReactDOM from 'react-dom';
 import { createUseStyles } from 'react-jss';
 import mapboxgl from 'mapbox-gl';
 import bbox from '@turf/bbox';
@@ -158,37 +157,6 @@ function App() {
         setPrecinctData(precinctData);
       });
   }, []);
-
-  useEffect(() => {
-    if (tooltipContainer) {
-      let tooltipElectionData;
-      if (tooltipPrecinct && electionData) {
-        tooltipElectionData = electionData[tooltipPrecinct];
-      }
-
-      if (
-        tooltipElectionData &&
-        (contest in tooltipElectionData || contest === TURNOUT_CONTEST)
-      ) {
-        ReactDOM.render(
-          React.createElement(Tooltip, {
-            precinct: tooltipPrecinct,
-            electionData: tooltipElectionData,
-            contest: contest,
-            onResize: ({ bounds }) => {
-              tooltipMarker.setOffset([
-                0,
-                -(bounds.height / window.devicePixelRatio + 10),
-              ]);
-            },
-          }),
-          tooltipContainer,
-        );
-      } else {
-        ReactDOM.unmountComponentAtNode(tooltipContainer);
-      }
-    }
-  }, [electionData, tooltipContainer, tooltipPrecinct, tooltipMarker, contest]);
 
   useEffect(() => {
     const tooltipDiv = document.createElement('div');
@@ -407,6 +375,17 @@ function App() {
   const totalVotes =
     overallResults &&
     Object.entries(overallResults).reduce((sum, [c, r]) => sum + r, 0);
+
+  let tooltipElectionData;
+  if (
+    tooltipPrecinct &&
+    electionData &&
+    electionData[tooltipPrecinct] &&
+    (contest in electionData[tooltipPrecinct] || contest === TURNOUT_CONTEST)
+  ) {
+    tooltipElectionData = electionData[tooltipPrecinct];
+  }
+
   return (
     <div className={classes.app}>
       <div className={classes.contestControl}>
@@ -439,6 +418,20 @@ function App() {
             ))}
       </div>
       <div className={classes.mapContainer} ref={mapContainerRef} />
+      {tooltipContainer && tooltipElectionData && (
+        <Tooltip
+          precinct={tooltipPrecinct}
+          electionData={tooltipElectionData}
+          contest={contest}
+          container={tooltipContainer}
+          onResize={({ bounds }) => {
+            tooltipMarker.setOffset([
+              0,
+              -(bounds.height / window.devicePixelRatio + 10),
+            ]);
+          }}
+        />
+      )}
     </div>
   );
 }

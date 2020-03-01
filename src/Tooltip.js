@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { createUseStyles } from 'react-jss';
 import Measure from 'react-measure';
 
@@ -12,7 +13,7 @@ const useStyles = createUseStyles({
   },
 });
 
-const Tooltip = ({ precinct, electionData, contest, onResize }) => {
+const Tooltip = ({ precinct, electionData, contest, onResize, container }) => {
   const classes = useStyles();
 
   const turnoutRate = (
@@ -34,7 +35,7 @@ const Tooltip = ({ precinct, electionData, contest, onResize }) => {
       ? 0
       : Object.values(electionData[contest]).reduce((t, v) => t + v, 0);
 
-  return (
+  return ReactDOM.createPortal(
     <Measure
       bounds
       onResize={contentRect => {
@@ -58,7 +59,8 @@ const Tooltip = ({ precinct, electionData, contest, onResize }) => {
           })}
         </div>
       )}
-    </Measure>
+    </Measure>,
+    container,
   );
 };
 
