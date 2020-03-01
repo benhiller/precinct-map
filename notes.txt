@@ -20,6 +20,7 @@ Data correctness:
 Tooltip:
 - if tooltip would be above window, place it below precinct
 - add shadow/arrow to tooltip view
+- optimize tooltip changes https://github.com/mapbox/mapbox-gl-js/issues/2874 maybe use setdata instead of setfilter?
 
 Done:
 - Should use 2012 precinct map for 2016 results
