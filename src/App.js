@@ -6,7 +6,9 @@ import bbox from '@turf/bbox';
 import Tooltip from './Tooltip';
 import { TURNOUT_CONTEST, capitalizeName } from './util';
 
-import precinctDataUrl from './data/precincts2012.txt';
+import precinct2012DataUrl from './data/precincts2012.txt';
+// import precinct2017DataUrl from './data/precincts2017.txt';
+// import precinct2019DataUrl from './data/precincts2019.txt';
 import primary2016ElectionDataUrl from './data/election2016primary.txt';
 import general2016ElectionDataUrl from './data/election2016general.txt';
 import municipal2015ElectionDataUrl from './data/election2015municipal.txt';
@@ -150,7 +152,7 @@ function App() {
   }, [election]);
 
   useEffect(() => {
-    fetch(precinctDataUrl)
+    fetch(precinct2012DataUrl)
       .then(response => response.text())
       .then(text => {
         const precinctData = JSON.parse(text);
