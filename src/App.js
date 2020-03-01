@@ -74,6 +74,13 @@ const useStyles = createUseStyles({
       marginRight: '10px',
     },
   },
+  '@media only screen and (min-device-width : 320px) and (max-device-width : 480px)': {
+    contestControl: {
+      '& select': {
+        fontSize: '16px',
+      },
+    },
+  },
   overallResults: {
     position: 'absolute',
     bottom: 25,
