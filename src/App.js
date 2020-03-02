@@ -9,6 +9,7 @@ import { TURNOUT_CONTEST, capitalizeName } from './util';
 import precinct2012DataUrl from './data/precincts2012.txt';
 import precinct2017DataUrl from './data/precincts2017.txt';
 // import precinct2019DataUrl from './data/precincts2019.txt';
+import general2018ElectionDataUrl from './data/election2018general.txt';
 import primary2018ElectionDataUrl from './data/election2018primary.txt';
 import general2016ElectionDataUrl from './data/election2016general.txt';
 import primary2016ElectionDataUrl from './data/election2016primary.txt';
@@ -43,6 +44,13 @@ const PRECINCT_HIGHLIGHT_LAYER = 'precinct-highlight';
 
 const DEFAULT_ELECTION = 'PRIMARY_2016';
 const ELECTIONS = {
+  GENERAL_2018: {
+    name: '2018 General Election',
+    dataUrl: general2018ElectionDataUrl,
+    precinctUrl: precinct2017DataUrl,
+    precinctKey: 'PREC_2017',
+    defaultContest: 'Governor - CALIFORNIA (100)',
+  },
   PRIMARY_2018: {
     name: '2018 Primary Election',
     dataUrl: primary2018ElectionDataUrl,
