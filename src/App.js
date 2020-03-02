@@ -7,10 +7,11 @@ import Tooltip from './Tooltip';
 import { TURNOUT_CONTEST, capitalizeName } from './util';
 
 import precinct2012DataUrl from './data/precincts2012.txt';
-// import precinct2017DataUrl from './data/precincts2017.txt';
+import precinct2017DataUrl from './data/precincts2017.txt';
 // import precinct2019DataUrl from './data/precincts2019.txt';
-import primary2016ElectionDataUrl from './data/election2016primary.txt';
+import primary2018ElectionDataUrl from './data/election2018primary.txt';
 import general2016ElectionDataUrl from './data/election2016general.txt';
+import primary2016ElectionDataUrl from './data/election2016primary.txt';
 import municipal2015ElectionDataUrl from './data/election2015municipal.txt';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
@@ -42,19 +43,28 @@ const PRECINCT_HIGHLIGHT_LAYER = 'precinct-highlight';
 
 const DEFAULT_ELECTION = 'PRIMARY_2016';
 const ELECTIONS = {
+  PRIMARY_2018: {
+    name: '2018 Primary Election',
+    dataUrl: primary2018ElectionDataUrl,
+    precinctUrl: precinct2017DataUrl,
+    defaultContest: 'Governor - CALIFORNIA (100)',
+  },
   GENERAL_2016: {
     name: '2016 General Election',
     dataUrl: general2016ElectionDataUrl,
+    precinctUrl: precinct2012DataUrl,
     defaultContest: 'President and Vice President - CALIFORNIA (100)',
   },
   PRIMARY_2016: {
     name: '2016 Primary Election',
     dataUrl: primary2016ElectionDataUrl,
+    precinctUrl: precinct2012DataUrl,
     defaultContest: 'President - DEM',
   },
   MUNICIPAL_2015: {
     name: '2015 Municipal Election',
     dataUrl: municipal2015ElectionDataUrl,
+    precinctUrl: precinct2012DataUrl,
     defaultContest: 'Mayor - CITY/COUNTY OF SAN FRANCI (100)',
   },
 };
