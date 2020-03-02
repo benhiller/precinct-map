@@ -40,26 +40,23 @@ const PRECINCT_SOURCE = 'precincts';
 const PRECINCT_LAYER = 'precinct-borders';
 const PRECINCT_HIGHLIGHT_LAYER = 'precinct-highlight';
 
-const GENERAL_2016 = '2016 General Election';
-const PRIMARY_2016 = '2016 Primary Election';
-const MUNICIPAL_2015 = '2015 Municipal Election';
-
-const GENERAL_2016_DEFAULT_CONTEST =
-  'President and Vice President - CALIFORNIA (100)';
-const PRIMARY_2016_DEFAULT_CONTEST = 'President - DEM';
-const MUNICIPAL_2015_DEFAULT_CONTEST =
-  'Mayor - CITY/COUNTY OF SAN FRANCI (100)';
-
-const elections = [GENERAL_2016, PRIMARY_2016, MUNICIPAL_2015];
-const electionsToDataUrls = {
-  [GENERAL_2016]: general2016ElectionDataUrl,
-  [PRIMARY_2016]: primary2016ElectionDataUrl,
-  [MUNICIPAL_2015]: municipal2015ElectionDataUrl,
-};
-const electionsToDefaultContests = {
-  [GENERAL_2016]: GENERAL_2016_DEFAULT_CONTEST,
-  [PRIMARY_2016]: PRIMARY_2016_DEFAULT_CONTEST,
-  [MUNICIPAL_2015]: MUNICIPAL_2015_DEFAULT_CONTEST,
+const DEFAULT_ELECTION = 'PRIMARY_2016';
+const ELECTIONS = {
+  GENERAL_2016: {
+    name: '2016 General Election',
+    dataUrl: general2016ElectionDataUrl,
+    defaultContest: 'President and Vice President - CALIFORNIA (100)',
+  },
+  PRIMARY_2016: {
+    name: '2016 Primary Election',
+    dataUrl: primary2016ElectionDataUrl,
+    defaultContest: 'President - DEM',
+  },
+  MUNICIPAL_2015: {
+    name: '2015 Municipal Election',
+    dataUrl: municipal2015ElectionDataUrl,
+    defaultContest: 'Mayor - CITY/COUNTY OF SAN FRANCI (100)',
+  },
 };
 
 const useStyles = createUseStyles({
@@ -117,10 +114,9 @@ function App() {
   const classes = useStyles();
 
   // User controls
-  const defaultElection = PRIMARY_2016;
-  const [election, setElection] = useState(defaultElection);
+  const [election, setElection] = useState(DEFAULT_ELECTION);
   const [contest, setContest] = useState(
-    electionsToDefaultContests[defaultElection],
+    ELECTIONS[DEFAULT_ELECTION].defaultContest,
   );
   const [tooltipPrecinct, setTooltipPrecinct] = useState(null);
 
@@ -142,7 +138,7 @@ function App() {
   const mapContainerRef = useRef();
 
   useEffect(() => {
-    fetch(electionsToDataUrls[election])
+    fetch(ELECTIONS[election].dataUrl)
       .then(response => response.text())
       .then(text => {
         const electionData = JSON.parse(text);
@@ -371,7 +367,7 @@ function App() {
   const changeElection = election => {
     setElectionData(null);
     setElection(election);
-    setContest(electionsToDefaultContests[election]);
+    setContest(ELECTIONS[election].defaultContest);
   };
 
   const totalVotes =
@@ -392,9 +388,9 @@ function App() {
     <div className={classes.app}>
       <div className={classes.contestControl}>
         <select onChange={e => changeElection(e.target.value)} value={election}>
-          {elections.map(innerElection => (
+          {Object.entries(ELECTIONS).map(([innerElection, obj]) => (
             <option key={innerElection} value={innerElection}>
-              {innerElection}
+              {obj.name}
             </option>
           ))}
         </select>
