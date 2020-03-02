@@ -8,7 +8,8 @@ import { TURNOUT_CONTEST, capitalizeName } from './util';
 
 import precinct2012DataUrl from './data/precincts2012.txt';
 import precinct2017DataUrl from './data/precincts2017.txt';
-// import precinct2019DataUrl from './data/precincts2019.txt';
+import precinct2019DataUrl from './data/precincts2019.txt';
+import municipal2019ElectionDataUrl from './data/election2019municipal.txt';
 import general2018ElectionDataUrl from './data/election2018general.txt';
 import primary2018ElectionDataUrl from './data/election2018primary.txt';
 import general2016ElectionDataUrl from './data/election2016general.txt';
@@ -44,6 +45,13 @@ const PRECINCT_HIGHLIGHT_LAYER = 'precinct-highlight';
 
 const DEFAULT_ELECTION = 'PRIMARY_2016';
 const ELECTIONS = {
+  MUNICIPAL_2018: {
+    name: '2019 Municipal Election',
+    dataUrl: municipal2019ElectionDataUrl,
+    precinctUrl: precinct2019DataUrl,
+    precinctKey: 'PREC_2019',
+    defaultContest: 'MAYOR',
+  },
   GENERAL_2018: {
     name: '2018 General Election',
     dataUrl: general2018ElectionDataUrl,
@@ -396,7 +404,7 @@ function App() {
             precinctElectionData.registeredVoters) *
           100;
         thresholds = TURNOUT_THRESHOLDS;
-      } else {
+      } else if (topCandidates.length > 1) {
         const candidate0Votes =
           precinctElectionData[contest][topCandidates[0].candidate];
         const candidate1Votes =
@@ -409,6 +417,10 @@ function App() {
         // TODO: Need to check logic makes sense here
         margin = ((candidate0Votes - candidate1Votes) / totalVotes) * 100;
         thresholds = THRESHOLDS;
+      } else {
+        // TODO - maybe count undervotes here? maybe filter out uncontested elections
+        margin = 100;
+        thresholds = TURNOUT_THRESHOLDS;
       }
 
       let color;
