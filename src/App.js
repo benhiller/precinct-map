@@ -47,24 +47,28 @@ const ELECTIONS = {
     name: '2018 Primary Election',
     dataUrl: primary2018ElectionDataUrl,
     precinctUrl: precinct2017DataUrl,
+    precinctKey: 'PREC_2017',
     defaultContest: 'Governor - CALIFORNIA (100)',
   },
   GENERAL_2016: {
     name: '2016 General Election',
     dataUrl: general2016ElectionDataUrl,
     precinctUrl: precinct2012DataUrl,
+    precinctKey: 'PREC_2012',
     defaultContest: 'President and Vice President - CALIFORNIA (100)',
   },
   PRIMARY_2016: {
     name: '2016 Primary Election',
     dataUrl: primary2016ElectionDataUrl,
     precinctUrl: precinct2012DataUrl,
+    precinctKey: 'PREC_2012',
     defaultContest: 'President - DEM',
   },
   MUNICIPAL_2015: {
     name: '2015 Municipal Election',
     dataUrl: municipal2015ElectionDataUrl,
     precinctUrl: precinct2012DataUrl,
+    precinctKey: 'PREC_2012',
     defaultContest: 'Mayor - CITY/COUNTY OF SAN FRANCI (100)',
   },
 };
@@ -134,7 +138,18 @@ function App() {
   const [electionData, setElectionData] = useState(null);
   const [overallResults, setOverallResults] = useState(null);
   const [contests, setContests] = useState(null);
-  const [precinctData, setPrecinctData] = useState(null);
+  const [precinctUrl, setPrecinctUrl] = useState(
+    ELECTIONS[DEFAULT_ELECTION].precinctUrl,
+  );
+  const [precinctKey, setPrecinctKey] = useState(
+    ELECTIONS[DEFAULT_ELECTION].precinctKey,
+  );
+  const [tooltipPrecinctKey, setTooltipPrecinctKey] = useState(null);
+  const [precinctData, setPrecinctData] = useState({
+    precinctData: null,
+    loadedUrl: null,
+  });
+  const [mouseMoveListener, setMouseMoveListener] = useState(null);
 
   // Loading
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -158,15 +173,6 @@ function App() {
   }, [election]);
 
   useEffect(() => {
-    fetch(precinct2012DataUrl)
-      .then(response => response.text())
-      .then(text => {
-        const precinctData = JSON.parse(text);
-        setPrecinctData(precinctData);
-      });
-  }, []);
-
-  useEffect(() => {
     const tooltipDiv = document.createElement('div');
 
     const map = new mapboxgl.Map({
@@ -185,20 +191,6 @@ function App() {
       .setLngLat([0, 0])
       .addTo(map);
 
-    map.on('mousemove', e => {
-      const features = map.queryRenderedFeatures(e.point);
-      const filteredFeature = features.filter(
-        f => f.source === PRECINCT_SOURCE,
-      )[0];
-      if (filteredFeature) {
-        const [minX /* minY */, , maxX, maxY] = bbox(filteredFeature.geometry);
-        tooltip.setLngLat([(minX + maxX) / 2.0, maxY]);
-      }
-      setTooltipPrecinct(
-        filteredFeature && filteredFeature.properties['PREC_2012'],
-      );
-    });
-
     map.on('load', () => {
       setMapLoaded(true);
     });
@@ -212,53 +204,109 @@ function App() {
     if (!mapLoaded) {
       return;
     }
-    if (!precinctData) {
+
+    if (tooltipPrecinctKey === precinctKey) {
       return;
     }
 
-    map.addSource(PRECINCT_SOURCE, {
-      type: 'geojson',
-      data: precinctData,
-    });
-
-    const layers = map.getStyle().layers;
-    let firstSymbolId;
-    for (let i = 0; i < layers.length; i++) {
-      if (layers[i].id.endsWith('label')) {
-        firstSymbolId = layers[i].id;
-        break;
-      }
+    if (mouseMoveListener) {
+      map.off('mousemove', mouseMoveListener.listener);
     }
 
-    map.addLayer(
-      {
-        id: PRECINCT_HIGHLIGHT_LAYER,
-        type: 'line',
-        source: PRECINCT_SOURCE,
-        filter: ['==', 'PREC_2012', '0'],
-        visibility: 'none',
-        paint: {
-          'line-width': 2,
-        },
-      },
-      firstSymbolId,
-    );
+    const listener = e => {
+      const features = map.queryRenderedFeatures(e.point);
+      const filteredFeature = features.filter(
+        f => f.source === PRECINCT_SOURCE,
+      )[0];
+      if (filteredFeature) {
+        const [minX /* minY */, , maxX, maxY] = bbox(filteredFeature.geometry);
+        tooltipMarker.setLngLat([(minX + maxX) / 2.0, maxY]);
+      }
+      setTooltipPrecinct(
+        filteredFeature && filteredFeature.properties[precinctKey],
+      );
+    };
 
-    map.addLayer(
-      {
-        id: PRECINCT_LAYER,
-        type: 'fill',
-        source: PRECINCT_SOURCE,
-        paint: {
-          'fill-color': '#fff',
-        },
-        filter: ['==', '$type', 'Polygon'],
-      },
-      PRECINCT_HIGHLIGHT_LAYER,
-    );
+    map.on('mousemove', listener);
+    setMouseMoveListener({ listener });
+    setTooltipPrecinctKey(precinctKey);
+  }, [
+    precinctKey,
+    tooltipMarker,
+    map,
+    mapLoaded,
+    mouseMoveListener,
+    tooltipPrecinctKey,
+  ]);
 
-    setMapInitialized(true);
-  }, [precinctData, map, mapLoaded]);
+  useEffect(() => {
+    setPrecinctData({ precinctData: null, loadedUrl: null });
+
+    fetch(precinctUrl)
+      .then(response => response.text())
+      .then(text => {
+        const precinctData = JSON.parse(text);
+        setPrecinctData({ precinctData, loadedUrl: precinctUrl });
+      });
+  }, [precinctUrl]);
+
+  useEffect(() => {
+    if (!mapLoaded) {
+      return;
+    }
+    if (precinctData.loadedUrl !== precinctUrl) {
+      return;
+    }
+
+    const precinctSource = map.getSource(PRECINCT_SOURCE);
+    if (precinctSource) {
+      precinctSource.setData(precinctData.precinctData);
+      map.setFilter(PRECINCT_HIGHLIGHT_LAYER, ['==', precinctKey, '0']);
+    } else {
+      map.addSource(PRECINCT_SOURCE, {
+        type: 'geojson',
+        data: precinctData.precinctData,
+      });
+
+      const layers = map.getStyle().layers;
+      let firstSymbolId;
+      for (let i = 0; i < layers.length; i++) {
+        if (layers[i].id.endsWith('label')) {
+          firstSymbolId = layers[i].id;
+          break;
+        }
+      }
+
+      map.addLayer(
+        {
+          id: PRECINCT_HIGHLIGHT_LAYER,
+          type: 'line',
+          source: PRECINCT_SOURCE,
+          filter: ['==', precinctKey, '0'],
+          visibility: 'none',
+          paint: {
+            'line-width': 2,
+          },
+        },
+        firstSymbolId,
+      );
+
+      map.addLayer(
+        {
+          id: PRECINCT_LAYER,
+          type: 'fill',
+          source: PRECINCT_SOURCE,
+          paint: {
+            'fill-color': '#fff',
+          },
+          filter: ['==', '$type', 'Polygon'],
+        },
+        PRECINCT_HIGHLIGHT_LAYER,
+      );
+
+      setMapInitialized(true);
+    }
+  }, [precinctData, precinctUrl, precinctKey, map, mapLoaded]);
 
   useEffect(() => {
     if (!mapInitialized) {
@@ -271,18 +319,18 @@ function App() {
       map.setLayoutProperty(PRECINCT_HIGHLIGHT_LAYER, 'visibility', 'visible');
       map.setFilter(PRECINCT_HIGHLIGHT_LAYER, [
         '==',
-        'PREC_2012',
+        precinctKey,
         tooltipPrecinct,
       ]);
     }
-  }, [mapInitialized, map, tooltipPrecinct]);
+  }, [mapInitialized, map, tooltipPrecinct, precinctKey]);
 
   useEffect(() => {
     if (!mapInitialized) {
       return;
     }
 
-    if (!precinctData) {
+    if (precinctData.loadedUrl !== precinctUrl) {
       return;
     }
 
@@ -290,7 +338,7 @@ function App() {
       return;
     }
 
-    const expression = ['match', ['get', 'PREC_2012']];
+    const expression = ['match', ['get', precinctKey]];
 
     const overallResults = computeOverallResults(electionData, contest);
     setOverallResults(overallResults);
@@ -314,14 +362,14 @@ function App() {
       }
     }
 
-    for (let idx in precinctData.features) {
-      const precinct = precinctData.features[idx];
-      if (!precinct['properties']['PREC_2012']) {
+    for (let idx in precinctData.precinctData.features) {
+      const precinct = precinctData.precinctData.features[idx];
+      if (!precinct['properties'][precinctKey]) {
         // console.log('no precinct', precinct);
         continue;
       }
       const precinctElectionData =
-        electionData[precinct['properties']['PREC_2012']];
+        electionData[precinct['properties'][precinctKey]];
       if (!precinctElectionData) {
         // console.log('no turnout data', precinct);
         continue;
@@ -366,18 +414,29 @@ function App() {
         }
       }
 
-      expression.push(precinct['properties']['PREC_2012'], color);
+      expression.push(precinct['properties'][precinctKey], color);
     }
 
     expression.push('rgba(0,0,0,0)');
 
     map.setPaintProperty(PRECINCT_LAYER, 'fill-color', expression);
-  }, [map, mapInitialized, precinctData, electionData, election, contest]);
+  }, [
+    map,
+    mapInitialized,
+    precinctData,
+    precinctUrl,
+    precinctKey,
+    electionData,
+    election,
+    contest,
+  ]);
 
   const changeElection = election => {
     setElectionData(null);
     setElection(election);
     setContest(ELECTIONS[election].defaultContest);
+    setPrecinctUrl(ELECTIONS[election].precinctUrl);
+    setPrecinctKey(ELECTIONS[election].precinctKey);
   };
 
   const totalVotes =
