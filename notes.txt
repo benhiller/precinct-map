@@ -1,4 +1,6 @@
 TODO:
+- races with more than two main candidates aren't handled well
+- races where people vote for more than one candidate are also weird
 - show results from several elections
 - see correlation between candidates/propositions across elections
 - see how turnout changes across elections

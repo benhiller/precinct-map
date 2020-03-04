@@ -9,6 +9,7 @@ import { TURNOUT_CONTEST, capitalizeName } from './util';
 import precinct2012DataUrl from './data/precincts2012.txt';
 import precinct2017DataUrl from './data/precincts2017.txt';
 import precinct2019DataUrl from './data/precincts2019.txt';
+import primary2020ElectionDataUrl from './data/election2020primary.txt';
 import municipal2019ElectionDataUrl from './data/election2019municipal.txt';
 import general2018ElectionDataUrl from './data/election2018general.txt';
 import primary2018ElectionDataUrl from './data/election2018primary.txt';
@@ -45,7 +46,14 @@ const PRECINCT_HIGHLIGHT_LAYER = 'precinct-highlight';
 
 const DEFAULT_ELECTION = 'PRIMARY_2016';
 const ELECTIONS = {
-  MUNICIPAL_2018: {
+  PRIMARY_2020: {
+    name: '2020 Primary Election',
+    dataUrl: primary2020ElectionDataUrl,
+    precinctUrl: precinct2019DataUrl,
+    precinctKey: 'PREC_2019',
+    defaultContest: 'President DEM',
+  },
+  MUNICIPAL_2019: {
     name: '2019 Municipal Election',
     dataUrl: municipal2019ElectionDataUrl,
     precinctUrl: precinct2019DataUrl,

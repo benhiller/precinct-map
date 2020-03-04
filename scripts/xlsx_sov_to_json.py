@@ -33,7 +33,7 @@ for idx, sheetname in enumerate(wb.sheetnames):
                 continue
 
             cell = row[0]
-            if cell.value.startswith('PCT'):
+            if cell.value.startswith('PCT') or cell.value.startswith('Pct'):
                 precincts = parse_precincts(cell.value)
             elif cell.value == 'Total':
                 for precinct in precincts:
@@ -45,23 +45,29 @@ for idx, sheetname in enumerate(wb.sheetnames):
         col_to_candidate = {}
         for row_idx, row in enumerate(ws.rows):
             if row_idx == 1:
-                contest = row[0].value.strip()
+                contest = row[0].value.split('\n')[0].strip()
                 contests.append(contest)
             elif row_idx == 3:
-                for cell in row[7:]:
+                seen_precinct = 0
+                for cell in row:
                     if not cell.value:
+                        continue
+                    if cell.value == 'Precinct':
+                        seen_precinct += 1
+                        continue
+                    if seen_precinct != 2:
                         continue
                     # TODO - ignoring write in candidates for now
                     if cell.value.strip() == 'Write-in' or cell.value.strip() == 'Total Votes':
                         break
                     else:
-                        col_to_candidate[cell.column] = cell.value.strip()
+                        col_to_candidate[cell.column] = cell.value.split('\n')[0].strip()
             elif row_idx >= 6:
                 if not row or not row[0] or not row[0].value:
                     continue
 
                 cell = row[0]
-                if cell.value.startswith('PCT'):
+                if cell.value.startswith('PCT') or cell.value.startswith('Pct'):
                     precincts = parse_precincts(cell.value)
                 elif cell.value == 'Total':
                     for precinct in precincts:
