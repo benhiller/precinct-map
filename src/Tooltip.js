@@ -50,6 +50,7 @@ const Tooltip = ({ precinct, electionData, contest, onResize, container }) => {
           <div>Turnout: {turnoutRate}%</div>
           {sortedCandidates
             .filter(c => electionData[contest][c] > 0)
+            .slice(0, 5)
             .map(candidate => {
               const votes = electionData[contest][candidate];
               const percent = ((votes / totalVotes) * 100).toFixed(2);
