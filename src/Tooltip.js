@@ -47,7 +47,7 @@ const Tooltip = ({ precinct, electionData, contest, onResize, container }) => {
           <div>Precinct #{precinct}</div>
           <div>Registered Voters: {electionData.registeredVoters}</div>
           <div>Ballots Cast: {electionData.ballotsCast}</div>
-          <div>Turnout: {turnoutRate}%</div>
+          {electionData.ballotsCast !== 0 && <div>Turnout: {turnoutRate}%</div>}
           {sortedCandidates
             .filter(c => electionData[contest][c] > 0)
             .slice(0, 5)
