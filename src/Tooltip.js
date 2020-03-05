@@ -48,15 +48,17 @@ const Tooltip = ({ precinct, electionData, contest, onResize, container }) => {
           <div>Registered Voters: {electionData.registeredVoters}</div>
           <div>Ballots Cast: {electionData.ballotsCast}</div>
           <div>Turnout: {turnoutRate}%</div>
-          {sortedCandidates.slice(0, 2).map(candidate => {
-            const votes = electionData[contest][candidate];
-            const percent = ((votes / totalVotes) * 100).toFixed(2);
-            return (
-              <div key={candidate}>
-                {capitalizeName(candidate)}: {percent}% ({votes})
-              </div>
-            );
-          })}
+          {sortedCandidates
+            .filter(c => electionData[contest][c] > 0)
+            .map(candidate => {
+              const votes = electionData[contest][candidate];
+              const percent = ((votes / totalVotes) * 100).toFixed(2);
+              return (
+                <div key={candidate}>
+                  {capitalizeName(candidate)}: {percent}% ({votes})
+                </div>
+              );
+            })}
         </div>
       )}
     </Measure>,
