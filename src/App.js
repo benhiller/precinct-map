@@ -457,11 +457,11 @@ function App() {
             precinctElectionData[contest][c1],
         );
 
-        if (precinctOrderedCandidates.length == 0 || totalVotes == 0) {
+        if (precinctOrderedCandidates.length === 0 || totalVotes === 0) {
           margin = 0;
           thresholds = THRESHOLDS;
           colors = GREEN_COLORS;
-        } else if (precinctOrderedCandidates.length == 1) {
+        } else if (precinctOrderedCandidates.length === 1) {
           margin = 100;
           thresholds = THRESHOLDS;
           colors =
