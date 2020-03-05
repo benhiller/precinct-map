@@ -19,9 +19,10 @@ import municipal2015ElectionDataUrl from './data/election2015municipal.txt';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-const LAT = 37.758;
-const LONG = -122.444;
-const ZOOM = 12;
+const BOUNDS = [
+  [-122.51, 37.7],
+  [-122.36, 37.82],
+];
 
 // https://gka.github.io/palettes/
 const BLUE_COLORS = [
@@ -261,8 +262,7 @@ function App() {
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: 'mapbox://styles/benhiller/ck6zv6a0m0dnd1jqo502sezzs',
-      center: [LONG, LAT],
-      zoom: ZOOM,
+      bounds: BOUNDS,
     });
 
     map.dragRotate.disable();
