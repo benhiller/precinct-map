@@ -500,7 +500,7 @@ function App() {
         // TODO - maybe count undervotes here? maybe filter out uncontested elections
         margin = 100;
         thresholds = TURNOUT_THRESHOLDS;
-        colors = GREEN_COLORS;
+        colors = COLORS[0];
       }
 
       let color;
