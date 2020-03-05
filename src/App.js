@@ -162,6 +162,25 @@ const useStyles = createUseStyles({
     bottom: 25,
     right: 10,
     zIndex: '1 !important',
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    padding: '5px',
+    borderRadius: '2px',
+    '& > div': {
+      marginBottom: '3px',
+    },
+    '& > div:last-child': {
+      marginBottom: '0px',
+    },
+  },
+  candidateBadge: {
+    display: 'inline-block',
+    width: '10px',
+    height: '10px',
+    borderRadius: '2px',
+  },
+  candidateResult: {
+    float: 'right',
+    paddingLeft: '15px',
   },
   mapContainer: {
     position: 'absolute',
@@ -169,12 +188,6 @@ const useStyles = createUseStyles({
     right: 0,
     left: 0,
     bottom: 0,
-  },
-  candidateBadge: {
-    display: 'inline-block',
-    width: '10px',
-    height: '10px',
-    borderRadius: '2px',
   },
 });
 
@@ -563,14 +576,17 @@ function App() {
             .sort(([c1, r1], [c2, r2]) => r2 - r1)
             .slice(0, COLORS.length)
             .map(([c, r], i) => (
-              <div key={c}>
+              <div key={c} className={classes.candidateRow}>
                 {i < COLORS.length && (
                   <div
                     style={{ backgroundColor: COLORS[i][COLORS[i].length - 1] }}
                     className={classes.candidateBadge}
                   />
                 )}{' '}
-                {capitalizeName(c)} - {((r / totalVotes) * 100).toFixed(2)}%
+                <span>{capitalizeName(c)}</span>{' '}
+                <span className={classes.candidateResult}>
+                  {((r / totalVotes) * 100).toFixed(2)}%
+                </span>
               </div>
             ))}
       </div>
