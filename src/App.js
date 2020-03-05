@@ -470,28 +470,31 @@ function App() {
             precinctElectionData[contest][c1],
         );
 
+        thresholds = THRESHOLDS;
         if (precinctOrderedCandidates.length === 0 || totalVotes === 0) {
           margin = 0;
-          thresholds = THRESHOLDS;
           colors = GREEN_COLORS;
         } else if (precinctOrderedCandidates.length === 1) {
           margin = 100;
-          thresholds = THRESHOLDS;
           colors =
             COLORS[
               overallOrderedCandidates.indexOf(precinctOrderedCandidates[0])
             ];
         } else {
-          margin =
-            ((precinctElectionData[contest][precinctOrderedCandidates[0]] -
-              precinctElectionData[contest][precinctOrderedCandidates[1]]) /
-              totalVotes) *
-            100;
-          thresholds = THRESHOLDS;
-          colors =
-            COLORS[
-              overallOrderedCandidates.indexOf(precinctOrderedCandidates[0])
-            ];
+          const colorIdx = overallOrderedCandidates.indexOf(
+            precinctOrderedCandidates[0],
+          );
+          if (colorIdx < COLORS.length) {
+            margin =
+              ((precinctElectionData[contest][precinctOrderedCandidates[0]] -
+                precinctElectionData[contest][precinctOrderedCandidates[1]]) /
+                totalVotes) *
+              100;
+            colors = COLORS[colorIdx];
+          } else {
+            margin = 0;
+            colors = COLORS[0];
+          }
         }
       } else {
         // TODO - maybe count undervotes here? maybe filter out uncontested elections
