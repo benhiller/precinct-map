@@ -170,6 +170,12 @@ const useStyles = createUseStyles({
     left: 0,
     bottom: 0,
   },
+  candidateBadge: {
+    display: 'inline-block',
+    width: '10px',
+    height: '10px',
+    borderRadius: '2px',
+  },
 });
 
 const computeOverallResults = (electionData, contest) => {
@@ -555,9 +561,15 @@ function App() {
         {overallResults &&
           Object.entries(overallResults)
             .sort(([c1, r1], [c2, r2]) => r2 - r1)
-            .slice(0, 2)
-            .map(([c, r]) => (
+            .slice(0, COLORS.length)
+            .map(([c, r], i) => (
               <div key={c}>
+                {i < COLORS.length && (
+                  <div
+                    style={{ backgroundColor: COLORS[i][COLORS[i].length - 1] }}
+                    className={classes.candidateBadge}
+                  />
+                )}{' '}
                 {capitalizeName(c)} - {((r / totalVotes) * 100).toFixed(2)}%
               </div>
             ))}
