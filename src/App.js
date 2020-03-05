@@ -23,28 +23,68 @@ const LAT = 37.758;
 const LONG = -122.444;
 const ZOOM = 12;
 
-const COLORS = [
-  'rgba(0, 0, 255, 0.75)',
-  'rgba(83, 83, 255, 0.75)',
-  'rgba(129, 129, 255, 0.75)',
-  'rgba(171, 171, 255, 0.75)',
-  'rgba(213, 213, 255, 0.75)',
+// https://gka.github.io/palettes/
+const BLUE_COLORS = [
+  // #3bd1d9
   'rgba(255, 255, 255, 0.75)',
-  'rgba(255, 220, 220, 0.75)',
-  'rgba(255, 184, 184, 0.75)',
-  'rgba(255, 145, 145, 0.75)',
-  'rgba(255, 99, 99, 0.75)',
-  'rgba(255, 0, 0, 0.75)',
+  'rgba(216, 246, 247, 0.75)',
+  'rgba(177, 237, 240, 0.75)',
+  'rgba(137, 227, 232, 0.75)',
+  'rgba(98, 218, 225, 0.75)',
+  'rgba(59, 209, 217, 0.75)',
+];
+const RED_COLORS = [
+  // #d93b60
+  'rgba(255, 255, 255, 0.75)',
+  'rgba(247, 216, 223, 0.75)',
+  'rgba(240, 177, 191, 0.75)',
+  'rgba(232, 137, 160, 0.75)',
+  'rgba(225, 98, 128, 0.75)',
+  'rgba(217, 59, 96, 0.75)',
+];
+const GREEN_COLORS = [
+  // #3bd948
+  'rgba(255, 255, 255, 0.75)',
+  'rgba(216, 247, 218, 0.75)',
+  'rgba(177, 240, 182, 0.75)',
+  'rgba(137, 232, 145, 0.75)',
+  'rgba(98, 225, 109, 0.75)',
+  'rgba(59, 217, 72, 0.75)',
+];
+const YELLOW_COLORS = [
+  // #d9d93b
+  'rgba(255, 255, 255, 0.75)',
+  'rgba(247, 247, 216, 0.75)',
+  'rgba(240, 240, 177, 0.75)',
+  'rgba(232, 232, 137, 0.75)',
+  'rgba(225, 225, 98, 0.75)',
+  'rgba(217, 217, 59, 0.75)',
+];
+const PINK_COLORS = [
+  // #a73bd9
+  'rgba(255, 255, 255, 0.75)',
+  'rgba(237, 216, 247, 0.75)',
+  'rgba(220, 177, 240, 0.75)',
+  'rgba(202, 137, 232, 0.75)',
+  'rgba(185, 95, 225, 0.75)',
+  'rgba(167, 59, 217, 0.75)',
+];
+const COLORS = [
+  BLUE_COLORS,
+  RED_COLORS,
+  GREEN_COLORS,
+  YELLOW_COLORS,
+  PINK_COLORS,
 ];
 
-const THRESHOLDS = [-25, -20, -15, -10, -1, 1, 10, 15, 20, 25];
-const TURNOUT_THRESHOLDS = [-1, -1, -1, -1, -1, -1, 50, 55, 60, 65];
+const THRESHOLDS = [0.5, 5, 10, 15, 20];
+const TURNOUT_THRESHOLDS = [0, 50, 55, 60, 65];
 
 const PRECINCT_SOURCE = 'precincts';
 const PRECINCT_LAYER = 'precinct-borders';
 const PRECINCT_HIGHLIGHT_LAYER = 'precinct-highlight';
 
-const DEFAULT_ELECTION = 'PRIMARY_2016';
+const DEFAULT_ELECTION = 'PRIMARY_2020';
 const ELECTIONS = {
   PRIMARY_2020: {
     name: '2020 Primary Election',
@@ -366,25 +406,9 @@ function App() {
 
     const overallResults = computeOverallResults(electionData, contest);
     setOverallResults(overallResults);
-    const topCandidates = [];
-    for (const candidate of Object.keys(overallResults)) {
-      const votes = overallResults[candidate];
-      if (topCandidates.length < 2) {
-        topCandidates.push({ candidate, votes });
-      } else {
-        if (votes > topCandidates[0].votes) {
-          if (topCandidates[0].votes > topCandidates[1].votes) {
-            topCandidates[1] = topCandidates[0];
-          }
-          topCandidates[0] = { candidate, votes };
-        } else if (votes > topCandidates[1].votes) {
-          if (topCandidates[1].votes > topCandidates[0].votes) {
-            topCandidates[0] = topCandidates[1];
-          }
-          topCandidates[1] = { candidate, votes };
-        }
-      }
-    }
+    const overallOrderedCandidates = Object.keys(overallResults).sort(
+      (c1, c2) => overallResults[c2] - overallResults[c1],
+    );
 
     for (let idx in precinctData.precinctData.features) {
       const precinct = precinctData.precinctData.features[idx];
@@ -406,39 +430,65 @@ function App() {
 
       let margin;
       let thresholds;
+      let colors;
       if (contest === TURNOUT_CONTEST) {
         margin =
           (precinctElectionData.ballotsCast /
             precinctElectionData.registeredVoters) *
           100;
         thresholds = TURNOUT_THRESHOLDS;
-      } else if (topCandidates.length > 1) {
-        const candidate0Votes =
-          precinctElectionData[contest][topCandidates[0].candidate];
-        const candidate1Votes =
-          precinctElectionData[contest][topCandidates[1].candidate];
+        colors = GREEN_COLORS;
+      } else if (overallOrderedCandidates.length > 1) {
         const totalVotes = Object.keys(precinctElectionData[contest]).reduce(
-          (total, candidate) =>
-            total + precinctElectionData[contest][candidate],
+          (acc, val) => acc + precinctElectionData[contest][val],
           0,
         );
-        // TODO: Need to check logic makes sense here
-        margin = ((candidate0Votes - candidate1Votes) / totalVotes) * 100;
-        thresholds = THRESHOLDS;
+        const precinctOrderedCandidates = Object.keys(
+          precinctElectionData[contest],
+        ).sort(
+          (c1, c2) =>
+            precinctElectionData[contest][c2] -
+            precinctElectionData[contest][c1],
+        );
+
+        if (precinctOrderedCandidates.length == 0 || totalVotes == 0) {
+          margin = 0;
+          thresholds = THRESHOLDS;
+          colors = GREEN_COLORS;
+        } else if (precinctOrderedCandidates.length == 1) {
+          margin = 100;
+          thresholds = THRESHOLDS;
+          colors =
+            COLORS[
+              overallOrderedCandidates.indexOf(precinctOrderedCandidates[0])
+            ];
+        } else {
+          margin =
+            ((precinctElectionData[contest][precinctOrderedCandidates[0]] -
+              precinctElectionData[contest][precinctOrderedCandidates[1]]) /
+              totalVotes) *
+            100;
+          thresholds = THRESHOLDS;
+          colors =
+            COLORS[
+              overallOrderedCandidates.indexOf(precinctOrderedCandidates[0])
+            ];
+        }
       } else {
         // TODO - maybe count undervotes here? maybe filter out uncontested elections
         margin = 100;
         thresholds = TURNOUT_THRESHOLDS;
+        colors = GREEN_COLORS;
       }
 
       let color;
       for (let i = 0; i < thresholds.length; i++) {
         if (margin <= thresholds[i]) {
-          color = COLORS[i];
+          color = colors[i];
           break;
         }
         if (i === thresholds.length - 1) {
-          color = COLORS[i + 1];
+          color = colors[i + 1];
         }
       }
 
