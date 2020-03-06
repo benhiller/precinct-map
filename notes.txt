@@ -18,6 +18,7 @@ TODO:
 Data correctness:
 - handle merged precincts
 - handle precincts with 0 voters from 2016 general correctly
+- i think i'm double counting merged precincts in overall results
 
 Tooltip:
 - if tooltip would be above window, place it below precinct
