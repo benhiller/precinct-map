@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 import mapboxgl from 'mapbox-gl';
 import bbox from '@turf/bbox';
+import classNames from 'classnames';
 
 import Tooltip from './Tooltip';
 import { TURNOUT_CONTEST, capitalizeName } from './util';
@@ -158,11 +159,44 @@ const useStyles = createUseStyles({
       },
     },
   },
-  overallResults: {
+  overallResultsContainer: {
     position: 'absolute',
     bottom: 25,
     right: 10,
     zIndex: '1 !important',
+  },
+  overallResultsToggle: {
+    position: 'absolute',
+    height: '20px',
+    right: '10px',
+    top: '-20px',
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    border: 0,
+    borderRadius: '2px 2px 0 0',
+    '&:focus': {
+      outline: 0,
+    },
+  },
+  overallResultsToggleCollapsed: {
+    borderRadius: '2px',
+  },
+  caretUp: {
+    width: 0,
+    height: 0,
+    display: 'inline-block',
+    border: '4px solid transparent',
+    borderBottomColor: 'black',
+    marginBottom: '2px',
+  },
+  caretDown: {
+    width: 0,
+    height: 0,
+    display: 'inline-block',
+    border: '4px solid transparent',
+    borderTopColor: 'black',
+    marginBottom: '-2px',
+  },
+  overallResults: {
     backgroundColor: 'rgba(255, 255, 255, 0.75)',
     padding: '5px',
     borderRadius: '2px',
@@ -215,6 +249,7 @@ function App() {
     ELECTIONS[DEFAULT_ELECTION].defaultContest,
   );
   const [tooltipPrecinct, setTooltipPrecinct] = useState(null);
+  const [showOverallResults, setShowOverallResults] = useState(true);
 
   // Data
   const [electionData, setElectionData] = useState(null);
@@ -571,27 +606,45 @@ function App() {
           </select>
         )}
       </div>
-      <div className={classes.overallResults}>
-        {overallResults &&
-          Object.entries(overallResults)
-            .sort(([c1, r1], [c2, r2]) => r2 - r1)
-            .slice(0, COLORS.length)
-            .map(([c, r], i) => (
-              <div key={c} className={classes.candidateRow}>
-                <span>{capitalizeName(c)}</span>{' '}
-                <span className={classes.candidateResult}>
-                  {((r / totalVotes) * 100).toFixed(2)}%
-                </span>
-                <div
-                  className={classes.candidateResultBar}
-                  style={{
-                    width: `${(r / totalVotes) * 100}%`,
-                    backgroundColor: COLORS[i][COLORS[i].length - 1],
-                  }}
-                />
-              </div>
-            ))}
-      </div>
+      {overallResults && (
+        <div className={classes.overallResultsContainer}>
+          <button
+            className={classNames(classes.overallResultsToggle, {
+              [classes.overallResultsToggleCollapsed]: !showOverallResults,
+            })}
+            type="button"
+            onClick={() => setShowOverallResults(!showOverallResults)}
+          >
+            <span
+              className={
+                showOverallResults ? classes.caretDown : classes.caretUp
+              }
+            />
+          </button>
+          {showOverallResults && (
+            <div className={classes.overallResults}>
+              {Object.entries(overallResults)
+                .sort(([c1, r1], [c2, r2]) => r2 - r1)
+                .slice(0, COLORS.length)
+                .map(([c, r], i) => (
+                  <div key={c} className={classes.candidateRow}>
+                    <span>{capitalizeName(c)}</span>{' '}
+                    <span className={classes.candidateResult}>
+                      {((r / totalVotes) * 100).toFixed(2)}%
+                    </span>
+                    <div
+                      className={classes.candidateResultBar}
+                      style={{
+                        width: `${(r / totalVotes) * 100}%`,
+                        backgroundColor: COLORS[i][COLORS[i].length - 1],
+                      }}
+                    />
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
       <div className={classes.mapContainer} ref={mapContainerRef} />
       {tooltipContainer && tooltipElectionData && (
         <Tooltip
