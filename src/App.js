@@ -158,15 +158,19 @@ const useStyles = createUseStyles({
         fontSize: '16px',
       },
     },
+    overallResultsContainer: {
+      bottom: '40px !important',
+    },
   },
   overallResultsContainer: {
     position: 'absolute',
-    bottom: 25,
-    right: 10,
+    bottom: '25px',
+    right: '10px',
     zIndex: '1 !important',
   },
   overallResultsToggle: {
     position: 'absolute',
+    width: '22px',
     height: '20px',
     right: '10px',
     top: '-20px',
@@ -179,6 +183,7 @@ const useStyles = createUseStyles({
   },
   overallResultsToggleCollapsed: {
     borderRadius: '2px',
+    right: '0px',
   },
   caretUp: {
     width: 0,
