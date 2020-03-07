@@ -167,21 +167,19 @@ const useStyles = createUseStyles({
     padding: '5px',
     borderRadius: '2px',
     '& > div': {
-      marginBottom: '3px',
+      marginBottom: '5px',
     },
     '& > div:last-child': {
       marginBottom: '0px',
     },
   },
-  candidateBadge: {
-    display: 'inline-block',
-    width: '10px',
-    height: '10px',
-    borderRadius: '2px',
-  },
   candidateResult: {
     float: 'right',
     paddingLeft: '15px',
+  },
+  candidateResultBar: {
+    height: '5px',
+    borderRadius: '2px',
   },
   mapContainer: {
     position: 'absolute',
@@ -580,16 +578,17 @@ function App() {
             .slice(0, COLORS.length)
             .map(([c, r], i) => (
               <div key={c} className={classes.candidateRow}>
-                {i < COLORS.length && (
-                  <div
-                    style={{ backgroundColor: COLORS[i][COLORS[i].length - 1] }}
-                    className={classes.candidateBadge}
-                  />
-                )}{' '}
                 <span>{capitalizeName(c)}</span>{' '}
                 <span className={classes.candidateResult}>
                   {((r / totalVotes) * 100).toFixed(2)}%
                 </span>
+                <div
+                  className={classes.candidateResultBar}
+                  style={{
+                    width: `${(r / totalVotes) * 100}%`,
+                    backgroundColor: COLORS[i][COLORS[i].length - 1],
+                  }}
+                />
               </div>
             ))}
       </div>

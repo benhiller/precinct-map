@@ -12,7 +12,6 @@ TODO:
 - zoom into bounding box for relevant precincts for elections that only a subset of Sf voted in
 
 - determine thresholds for colors dynamically based on results + add legend showing ranges?
-- improve styling of overall results
 - improve layout on iphone
 
 Data correctness:
@@ -37,3 +36,4 @@ Done:
 - add all us rep elections
 - simplify map style
 - add results layer underneath labels
+- improve styling of overall results
