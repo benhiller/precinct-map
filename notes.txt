@@ -1,7 +1,5 @@
 TODO:
-- races with more than two main candidates aren't handled well
-- races where people vote for more than one candidate are also weird
-- show results from several elections
+- races where people vote for more than one candidate are weird
 - see correlation between candidates/propositions across elections
 - see how turnout changes across elections
 - compare vbm/e-day turnout
@@ -15,14 +13,13 @@ TODO:
 - improve layout on iphone
 
 Data correctness:
-- handle merged precincts
-- handle precincts with 0 voters from 2016 general correctly
 - i think i'm double counting merged precincts in overall results
 
 Tooltip:
 - if tooltip would be above window, place it below precinct
 - add shadow/arrow to tooltip view
 - optimize tooltip changes https://github.com/mapbox/mapbox-gl-js/issues/2874 maybe use setdata instead of setfilter?
+- make tooltip more consistent visually with overall results
 
 Done:
 - Should use 2012 precinct map for 2016 results
@@ -37,3 +34,7 @@ Done:
 - simplify map style
 - add results layer underneath labels
 - improve styling of overall results
+- handle merged precincts
+- handle precincts with 0 voters from 2016 general correctly
+- races with more than two main candidates aren't handled well
+- show results from several elections

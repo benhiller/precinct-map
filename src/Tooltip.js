@@ -9,7 +9,7 @@ const useStyles = createUseStyles({
   tooltip: {
     backgroundColor: 'white',
     padding: '10px',
-    borderRadius: '3px',
+    borderRadius: '2px',
   },
 });
 
