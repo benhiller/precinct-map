@@ -538,8 +538,12 @@ function App() {
           }
         }
       } else {
+        const totalVotes = Object.keys(precinctElectionData[contest]).reduce(
+          (acc, val) => acc + precinctElectionData[contest][val],
+          0,
+        );
+        margin = totalVotes > 0 ? 100 : 0;
         // TODO - maybe count undervotes here? maybe filter out uncontested elections
-        margin = 100;
         thresholds = TURNOUT_THRESHOLDS;
         colors = COLORS[0];
       }
