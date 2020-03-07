@@ -152,6 +152,11 @@ const useStyles = createUseStyles({
       marginRight: '10px',
     },
   },
+  '@media all': {
+    overallResultsContainer: {
+      bottom: '25px',
+    },
+  },
   '@media only screen and (min-device-width : 320px) and (max-device-width : 480px)': {
     contestControl: {
       '& select': {
@@ -159,18 +164,16 @@ const useStyles = createUseStyles({
       },
     },
     overallResultsContainer: {
-      bottom: '40px !important',
+      bottom: '40px',
     },
   },
   overallResultsContainer: {
     position: 'absolute',
-    bottom: '25px',
     right: '10px',
     zIndex: '1 !important',
   },
   overallResultsToggle: {
     position: 'absolute',
-    width: '22px',
     height: '20px',
     right: '10px',
     top: '-20px',
