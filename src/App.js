@@ -492,10 +492,14 @@ function App() {
       let thresholds;
       let colors;
       if (contest === TURNOUT_CONTEST) {
-        margin =
-          (precinctElectionData.ballotsCast /
-            precinctElectionData.registeredVoters) *
-          100;
+        if (precinctElectionData.registeredVoters === 0) {
+          margin = 0;
+        } else {
+          margin =
+            (precinctElectionData.ballotsCast /
+              precinctElectionData.registeredVoters) *
+            100;
+        }
         thresholds = TURNOUT_THRESHOLDS;
         colors = GREEN_COLORS;
       } else if (overallOrderedCandidates.length > 1) {
