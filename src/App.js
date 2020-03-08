@@ -26,8 +26,8 @@ const BOUNDS = [
 ];
 
 const MAX_BOUNDS = [
-  [-122.6, 37.68],
-  [-122.27, 37.87],
+  [-122.6, 37.62],
+  [-122.27, 37.9],
 ];
 
 // https://gka.github.io/palettes/
