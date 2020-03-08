@@ -25,6 +25,11 @@ const BOUNDS = [
   [-122.36, 37.82],
 ];
 
+const MAX_BOUNDS = [
+  [-122.6, 37.68],
+  [-122.27, 37.87],
+];
+
 // https://gka.github.io/palettes/
 const BLUE_COLORS = [
   // #3bd1d9
@@ -304,6 +309,7 @@ function App() {
       container: mapContainerRef.current,
       style: 'mapbox://styles/benhiller/ck6zv6a0m0dnd1jqo502sezzs',
       bounds: BOUNDS,
+      maxBounds: MAX_BOUNDS,
     });
 
     map.dragRotate.disable();
