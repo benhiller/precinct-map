@@ -10,6 +10,7 @@ import { TURNOUT_CONTEST, capitalizeName } from './util';
 import precinct2012DataUrl from './data/precincts2012.txt';
 import precinct2017DataUrl from './data/precincts2017.txt';
 import precinct2019DataUrl from './data/precincts2019.txt';
+import general2020ElectionDataUrl from './data/election2020general.txt';
 import primary2020ElectionDataUrl from './data/election2020primary.txt';
 import municipal2019ElectionDataUrl from './data/election2019municipal.txt';
 import general2018ElectionDataUrl from './data/election2018general.txt';
@@ -91,8 +92,15 @@ const PRECINCT_SOURCE = 'precincts';
 const PRECINCT_LAYER = 'precinct-borders';
 const PRECINCT_HIGHLIGHT_LAYER = 'precinct-highlight';
 
-const DEFAULT_ELECTION = 'PRIMARY_2020';
+const DEFAULT_ELECTION = 'GENERAL_2020';
 const ELECTIONS = {
+  GENERAL_2020: {
+    name: '2020 General Election',
+    dataUrl: general2020ElectionDataUrl,
+    precinctUrl: precinct2019DataUrl,
+    precinctKey: 'PREC_2019',
+    defaultContest: 'PRESIDENT AND VICE PRESIDENT',
+  },
   PRIMARY_2020: {
     name: '2020 Primary Election',
     dataUrl: primary2020ElectionDataUrl,
