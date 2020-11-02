@@ -92,7 +92,7 @@ const PRECINCT_SOURCE = 'precincts';
 const PRECINCT_LAYER = 'precinct-borders';
 const PRECINCT_HIGHLIGHT_LAYER = 'precinct-highlight';
 
-const DEFAULT_ELECTION = 'GENERAL_2020';
+const DEFAULT_ELECTION = 'PRIMARY_2020';
 const ELECTIONS = {
   GENERAL_2020: {
     name: '2020 General Election',
